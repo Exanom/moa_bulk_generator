@@ -1,8 +1,8 @@
 import subprocess
 import os
-from dataset_defs.DatasetObject import DatasetObject
+from ..dataset_defs.dataset_object import DatasetObject
 import datetime 
-from input_handling.utils import handle_input
+from ..input_handling.utils import handle_input
 
 class MOAHandler():
     _java_executable:str  = None
@@ -14,7 +14,6 @@ class MOAHandler():
         self._validate_MOA()
 
     def generate(self, datasets: list[DatasetObject], out_dir: str):
-        print(os.path.abspath(out_dir))
         if(not os.path.isdir(out_dir)):
             to_create = handle_input(f'{os.path.abspath(out_dir)} does not exist. Create directory(Y/N):')
             if(to_create == 'y'):

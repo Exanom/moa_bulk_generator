@@ -1,4 +1,4 @@
-from dataset_defs.dataset_object import DatasetObject
+from ..dataset_defs.dataset_object import DatasetObject
 from .utils import handle_input
 
 class FileInputHanlder():

@@ -1,6 +1,6 @@
 import math
 import re
-from .DatasetDictionaryDef import DatasetDict
+from .dataset_dictionary_def import DatasetDict
 
 GENERATORS = {
         'Agrawal': {
