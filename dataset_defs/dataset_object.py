@@ -50,7 +50,7 @@ class DatasetObject:
 
                 m = pattern.fullmatch(generator_string)
                 if(not m):
-                        raise Exception(f'INVALID STRING PASSED FOR PARSING: {generator_string}')
+                        raise Exception(f'Invalid string for pasrsing:: {generator_string}')
                 
                 self.generator = m.group('name')
                 self.classification_functions = [int(x) for x in m.group('f_vals').split('_')]
@@ -66,18 +66,18 @@ class DatasetObject:
         
         def from_dict(self, generation_dict: DatasetDict):
                 if(not isinstance(generation_dict, dict)):
-                        raise Exception('VALUE PASSED TO GENERATION OBJECT IS NOT A PROPER DICTIONARY')
+                        raise Exception('Value passed to dataset object is not a dictionary')
                 all_keys = {'generator','classification_functions','drift_points','drift_widths','num_of_samples'}
                 shorthand_keys = {'generator','classification_functions','num_of_samples'}
                 if(generation_dict.keys() != all_keys and generation_dict.keys() != shorthand_keys):
-                        raise Exception(f'DICTIONARY PASSED TO GENERATION OBJECT DOES NOT COMPLY TO THE NECESSARY STRUCTURE. ACCEPTED STRUCTURES: \n {all_keys} \n {shorthand_keys}')
+                        raise Exception(f'Dictionary passed to dataset object does not comply to the necessary structure. Accepted structures: \n {all_keys} \n {shorthand_keys}')
                 
                 if(not isinstance(generation_dict['classification_functions'], list)):
-                        raise Exception('classification_functions FIELD MUST BE A LIST') 
+                        raise Exception('classification_functions field must be a list') 
                 if('drift_points' in generation_dict.keys() and not isinstance(generation_dict['drift_points'], list)):
-                        raise Exception('drift_points FIELD MUST BE A LIST') 
+                        raise Exception('drift_points field must be a list') 
                 if('drift_widths' in generation_dict.keys() and not isinstance(generation_dict['drift_widths'], list)):
-                        raise Exception('drift_widths FIELD MUST BE A LIST') 
+                        raise Exception('drift_widths field must be a lis') 
 
                 self.generator = generation_dict['generator']
                 self.classification_functions = generation_dict['classification_functions']
@@ -115,47 +115,47 @@ class DatasetObject:
 
         def _validate(self):
                 if(self.generator not in GENERATORS.keys()):
-                        raise Exception(f'INVALID GENERATOR TYPE "{self.generator}". SUPPORTED GENERATORS: {GENERATORS.keys()}')
+                        raise Exception(f'Invalid generator type "{self.generator}". Supported generators: {GENERATORS.keys()}')
                 if(len(self.classification_functions) <=0):
-                        raise Exception(f'MUST PROVIDE AT LEAST ONE CLASSIFICATION FUNCTION')
+                        raise Exception(f'Must provide at least one classification function')
                 
                 for funct in self.classification_functions:
                         if(not isinstance(funct,int)):
-                                raise Exception('ALL CLASSIFICATION FUNCTION VALUES MUST BE AN INTEGER')
+                                raise Exception('All classification function Values mustt be integers')
                         if(not funct in GENERATORS[self.generator]['functions']):
-                                raise Exception(f'PROVIDED CLASSIFICATION FUNCTION IS NOT SUPPORTED BY THIS GENERATOR. AVAILABLE FUNCTIONS: {GENERATORS[self.generator]['functions']}')
+                                raise Exception(f'Provided classification function is not supported by this generator. Available functions: {GENERATORS[self.generator]['functions']}')
                 for point in self.drift_points:
                         if(not isinstance(point,int)):
-                                raise Exception('ALL DRIFT POINT VALUES MUST BE AN INTEGER')
+                                raise Exception('All drift point values mustt be integers')
                 for width in self.drift_widths:
                         if(not isinstance(width,int)):
-                                raise Exception('ALL DRIFT WIDTH VALUES MUST BE AN INTEGER')
+                                raise Exception('All drift width values mustt be integers')
 
                 #Each concept drift requires two classification functions(which can overlap), so the number of functions must be one more than the number of drits
                 if((len(self.drift_points) != len(self.drift_widths)) or (len(self.drift_points) != len(self.classification_functions) -1)):
-                        raise Exception('THE NUMBER OF CLASSIFICATION FUNCTIONS AND DRIFTS MISMATCH. THERE MUST BE ONE MORE CLASSIFICATION FUNCTION THAN THE NUMBER OF DRIFT POINTS')
+                        raise Exception('The number of classification functions and drifts mismatch. There must be one more classification function than the number of drift points')
                 #Make sure the drift points are strictly raising
                 for i in range(1,len(self.drift_points)):
                         if(self.drift_points[i-1]>=self.drift_points[i]):
-                                raise Exception('DRIFT POINTS VALUES MUST BE STRICTLY RAISING')
+                                raise Exception('drift points values must be strictly raising')
                 #Make sure there is no overlap in the drift area(and that width is over 0)
                 drift_areas = []
                 for i in range(len(self.drift_points)):
                         if(self.drift_widths[i] < 1):
-                                raise Exception('DRIFT WIDTH VALUES MUST BE ABOVE 0')
+                                raise Exception('drift width values must be above 0')
                         ofset = math.ceil(self.drift_widths[i]/2)
                         lower = self.drift_points[i]-ofset
                         upper = self.drift_points[i]+ofset
                         if(lower<1):
-                                raise Exception('ONE OF THE DRIFT AREAS WOULD BEGIN BEFORE FIRST SAMPLE')
+                                raise Exception('One of the drift areas would begin before first sample')
                         if(upper>=self.num_of_samples):
-                                raise Exception('ONE OF THE DRIFT AREAS WOULD END AFTER THE LAST SAMPLE')
+                                raise Exception('One of the drift areas would end after the last sample')
                         if(i>0):
                                 if(max(drift_areas)>= lower):
-                                        raise Exception(f'ONE OF THE DRIFT AREAS WOULD LEAD TO AN OVERLAP {drift_areas} {lower} {upper}')
+                                        raise Exception(f'One of the drift areas would lead to an overlap')
 
                         drift_areas.append(lower)
                         drift_areas.append(upper)
                 
                 if(self.num_of_samples<=0):
-                        raise Exception('MUST SPECIFY NUMBER OF SAMPLES HIGHER THAN ONE')
+                        raise Exception('Must specify number of samples bigger than one')

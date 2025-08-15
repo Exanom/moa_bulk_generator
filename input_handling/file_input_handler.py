@@ -1,7 +1,7 @@
 from ..dataset_defs.dataset_object import DatasetObject
 from .utils import handle_input
 
-class FileInputHanlder():
+class FileInputHandler():
     _dataset_path: str
     _dataset_strings: list[str]
     _dataset_objects: list[DatasetObject]

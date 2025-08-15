@@ -1,7 +1,7 @@
 import json
 import os
 from .moa_handling.moa_handler import MOAHandler
-from .input_handling.file_input_handler import FileInputHanlder
+from .input_handling.file_input_handler import FileInputHandler
 
 class MOABulkGenerator():
     _moa_handler: MOAHandler = None
@@ -29,7 +29,7 @@ class MOABulkGenerator():
     def run(self):
         datasets = []
         if(not self._interactive):
-            file_handler = FileInputHanlder(self._dataset_file_path)
+            file_handler = FileInputHandler(self._dataset_file_path)
             datasets = file_handler.load_validate_file()
         
         self._moa_handler.generate(datasets, self._out_path)

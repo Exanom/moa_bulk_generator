@@ -50,14 +50,14 @@ class MOAHandler():
         try:
             subprocess.run(full_command,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except:
-            raise Exception(f'EXECUTION OF COMMAND FAILED: \n{full_command}')
+            raise Exception(f'Execution of command failed: \n{full_command}')
 
     def _validate_MOA(self):
         command = self._java_executable + ' -cp '+self._MOA_path+'\\lib\\moa.jar -javaagent:'+self._MOA_path+'\\lib\\sizeofag-1.1.0.jar moa.DoTask'
         try:
             subprocess.run(command,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception as e:
-            raise Exception(f'MOA COULDN\'T BE CALLED. MAKE SURE THE INFORMATION WITHIN CONFIG FILE IS CORRECT. ATTEMPTED COMMAND:\n{command}')
+            raise Exception(f'MOA couldn\'t be called. Make sure the information within config gile is correct. Attempted command:\n{command}')
         
 
     def _build_command(self, generator:str, classification_functions:list[int], drift_points:list[int], drift_widths:list[int]) -> str:
