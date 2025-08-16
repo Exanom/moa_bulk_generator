@@ -1,5 +1,6 @@
 from typing import TypedDict, NotRequired
 
+
 class DatasetDict(TypedDict):
     generator: str
     classification_functions: list[int]

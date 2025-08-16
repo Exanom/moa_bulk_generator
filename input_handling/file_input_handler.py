@@ -1,7 +1,8 @@
 from ..dataset_defs import DatasetObject
 from .utils import handle_input
 
-class FileInputHandler():
+
+class FileInputHandler:
     _dataset_path: str
     _dataset_strings: list[str]
     _dataset_objects: list[DatasetObject]
@@ -15,7 +16,7 @@ class FileInputHandler():
         datasets = []
         with open(self._dataset_path) as f:
             datasets = f.read().splitlines()
-        #remove empty strings
+        # remove empty strings
         self._dataset_strings = list(filter(None, datasets))
 
         d_object = DatasetObject()
@@ -25,26 +26,26 @@ class FileInputHandler():
                 d_object.from_string(dataset)
                 self._dataset_objects.append(d_object)
             except Exception as e:
-               errors.append(f'line {i+1}: {dataset} -> error: {e}')
-        print('')
+                errors.append(f"line {i+1}: {dataset} -> error: {e}")
+        print("")
 
-        if(len(self._dataset_objects)>0):
-            print('Datasets to generate:')
+        if len(self._dataset_objects) > 0:
+            print("Datasets to generate:")
             for i, d in enumerate(self._dataset_objects):
-                print(f'\t{i}.{d.to_string()}')
-        if(len(errors)>0):
-            print('Script encoutered following errors in the dataset file:')
+                print(f"\t{i}.{d.to_string()}")
+        if len(errors) > 0:
+            print("Script encoutered following errors in the dataset file:")
             for error in errors:
-                print('\t' + error)
+                print("\t" + error)
 
-        if(len(self._dataset_objects) < 1):
-            print('No datasets to generate')
-        to_generate = 'y'
-        if(len(errors)>0 and len(self._dataset_objects)>0):
-            to_generate  = handle_input(f'Load the remaining({len(datasets)}) datasets?(Y/N)')
-        elif(len(self._dataset_objects)>0):
-            to_generate = handle_input('Load the listed datasets?(Y/N)')
-        if(to_generate=='n'):
+        if len(self._dataset_objects) < 1:
+            print("No datasets to generate")
+        to_generate = "y"
+        if len(errors) > 0 and len(self._dataset_objects) > 0:
+            to_generate = handle_input(
+                f"Load the remaining({len(datasets)}) datasets?(Y/N)"
+            )
+        if to_generate == "n":
             self._dataset_objects = []
 
         return self._dataset_objects
