@@ -23,11 +23,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--out", type=str, help="Specify output directory other than default."
     )
-    p.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Check validity of the datasets within the dataset txt file, without generating them.",
-    )
     return p
 
 

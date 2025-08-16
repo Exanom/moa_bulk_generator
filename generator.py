@@ -9,7 +9,6 @@ class MOABulkGenerator:
     _moa_handler: MOAHandler = None
     _interactive: bool
     _dataset_file_path: str
-    _validation_mode: bool
     _out_path: str
 
     def __init__(
@@ -18,12 +17,10 @@ class MOABulkGenerator:
         config_path="config.json",
         datasets_file: str = None,
         out_path: str = "results",
-        validation_mode: bool = False,
     ):
 
         self._interactive = interactive
         self._dataset_file_path = datasets_file
-        self._validation_mode = validation_mode
 
         if out_path is not None:
             self._out_path = out_path

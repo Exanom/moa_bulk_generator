@@ -79,9 +79,11 @@ class MOAHandler:
             + "\\lib\\sizeofag-1.1.0.jar moa.DoTask"
         )
         try:
-            subprocess.run(
-                command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            result = subprocess.run(
+                command, capture_output=True
             )
+            if("error" in str(result.stdout).lower()):
+                raise Exception()
         except Exception as e:
             raise Exception(
                 f"MOA couldn't be called. Make sure the information within config gile is correct. Attempted command:\n{command}"
