@@ -63,9 +63,7 @@ class MOAHandler:
         full_command = f'{command} "{generation_command}"'
 
         try:
-            subprocess.run(
-                full_command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            )
+            self._execute_command(full_command)
         except:
             raise Exception(f"Execution of command failed: \n{full_command}")
 
@@ -79,15 +77,18 @@ class MOAHandler:
             + "\\lib\\sizeofag-1.1.0.jar moa.DoTask"
         )
         try:
-            result = subprocess.run(
-                command, capture_output=True
-            )
-            if("error" in str(result.stdout).lower()):
-                raise Exception()
+            self._execute_command(command)
         except Exception as e:
             raise Exception(
                 f"MOA couldn't be called. Make sure the information within config gile is correct. Attempted command:\n{command}"
             )
+    
+    def _execute_command(self, command: str):
+        result = subprocess.run(
+            command, capture_output=True
+        )
+        if("error" in str(result.stdout).lower()):
+            raise Exception()
 
     def _build_command(
         self,
