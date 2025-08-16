@@ -1,4 +1,4 @@
-from ..dataset_defs.dataset_object import DatasetObject
+from ..dataset_defs import DatasetObject
 from .utils import handle_input
 
 class FileInputHandler():
@@ -41,9 +41,9 @@ class FileInputHandler():
             print('No datasets to generate')
         to_generate = 'y'
         if(len(errors)>0 and len(self._dataset_objects)>0):
-            to_generate  = handle_input(f'Generate the remaining({len(datasets)}) datasets?(Y/N)')
+            to_generate  = handle_input(f'Load the remaining({len(datasets)}) datasets?(Y/N)')
         elif(len(self._dataset_objects)>0):
-            to_generate = handle_input('Generate the listed datasets?(Y/N)')
+            to_generate = handle_input('Load the listed datasets?(Y/N)')
         if(to_generate=='n'):
             self._dataset_objects = []
 

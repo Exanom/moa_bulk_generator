@@ -1,8 +1,9 @@
 import json
 import os
-from .moa_handling.moa_handler import MOAHandler
-from .input_handling.file_input_handler import FileInputHandler
+from .moa_handling import MOAHandler
+from .input_handling import FileInputHandler, InteractiveInputHanlder
 
+#TODO Change interactive behavior. its not choice between interactive or loading. You can load datasets and still interact with the list
 class MOABulkGenerator():
     _moa_handler: MOAHandler = None
     _interactive: bool
@@ -11,7 +12,8 @@ class MOABulkGenerator():
     _out_path: str
 
 
-    def __init__(self, interactive:bool = True, config_path='config.json', datasets_file:str = '', out_path:str = 'results',  validation_mode: bool = False):
+    def __init__(self, interactive:bool = True, config_path='config.json', datasets_file:str = None, out_path:str = 'results',  validation_mode: bool = False):
+
         self._interactive = interactive
         self._dataset_file_path = datasets_file
         self._validation_mode = validation_mode
@@ -28,9 +30,13 @@ class MOABulkGenerator():
         
     def run(self):
         datasets = []
-        if(not self._interactive):
+        if(self._dataset_file_path):
             file_handler = FileInputHandler(self._dataset_file_path)
             datasets = file_handler.load_validate_file()
+
+        if(self._interactive):
+            input_handler = InteractiveInputHanlder(datasets)
+            datasets = input_handler.run()
         
         self._moa_handler.generate(datasets, self._out_path)
 

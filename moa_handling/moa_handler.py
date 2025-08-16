@@ -1,6 +1,6 @@
 import subprocess
 import os
-from ..dataset_defs.dataset_object import DatasetObject
+from ..dataset_defs import DatasetObject
 import datetime 
 from ..input_handling.utils import handle_input
 
