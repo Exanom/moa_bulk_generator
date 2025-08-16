@@ -18,10 +18,10 @@ class FileInputHandler:
             datasets = f.read().splitlines()
         # remove empty strings
         self._dataset_strings = list(filter(None, datasets))
-
-        d_object = DatasetObject()
+        
         errors = []
         for i, dataset in enumerate(self._dataset_strings):
+            d_object = DatasetObject()
             try:
                 d_object.from_string(dataset)
                 self._dataset_objects.append(d_object)
