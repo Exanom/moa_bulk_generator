@@ -18,12 +18,11 @@ class FileInputHandler:
             datasets = f.read().splitlines()
         # remove empty strings
         self._dataset_strings = list(filter(None, datasets))
-        
+
         errors = []
         for i, dataset in enumerate(self._dataset_strings):
-            d_object = DatasetObject()
             try:
-                d_object.from_string(dataset)
+                d_object = DatasetObject(dataste_string=dataset)
                 self._dataset_objects.append(d_object)
             except Exception as e:
                 errors.append(f"line {i+1}: {dataset} -> error: {e}")

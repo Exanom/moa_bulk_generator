@@ -82,12 +82,10 @@ class MOAHandler:
             raise Exception(
                 f"MOA couldn't be called. Make sure the information within config gile is correct. Attempted command:\n{command}"
             )
-    
+
     def _execute_command(self, command: str):
-        result = subprocess.run(
-            command, capture_output=True
-        )
-        if("error" in str(result.stdout).lower()):
+        result = subprocess.run(command, capture_output=True)
+        if "error" in str(result.stdout).lower():
             raise Exception()
 
     def _build_command(

@@ -15,29 +15,29 @@ class DatasetObject:
         "SEA": {"fullName": "SEAGenerator", "functions": list(range(1, 5))},
     }
 
-    def __init__(self):
-        self.generator = ""
-        self.classification_functions = []
-        self.drift_points = []
-        self.drift_widths = []
-        self.num_of_samples = 0
-
-    def from_base_values(
+    def __init__(
         self,
-        generator: str,
-        classification_functions: list[int],
-        drits_points: list[int],
-        drift_widths: list[int],
-        number_of_samples: int,
+        *,
+        generator: str | None = None,
+        classification_functions: list[int] | None = None,
+        drits_points: list[int] | None = None,
+        drift_widths: list[int] | None = None,
+        number_of_samples: int | None = None,
+        dataste_string: str | None = None,
+        dataset_dict: DatasetDict | None = None,
     ):
         self.generator = generator
         self.classification_functions = classification_functions
         self.drift_points = drits_points
         self.drift_widths = drift_widths
         self.num_of_samples = number_of_samples
+        if dataste_string is not None:
+            self._from_string(dataste_string)
+        elif dataset_dict is not None:
+            self._from_dict(dataset_dict)
         self._validate()
 
-    def from_string(self, generator_string: str):
+    def _from_string(self, generator_string: str):
         pattern = re.compile(
             r"^(?P<name>[^_]+)"  # generator name (no underscores)
             r"_f_(?P<f_vals>\d+(?:_\d+)*)"  # f values (one or more ints separated by _)
@@ -59,9 +59,7 @@ class DatasetObject:
             self.drift_widths = []
         self.num_of_samples = int(m.group("s"))
 
-        self._validate()
-
-    def from_dict(self, generation_dict: DatasetDict):
+    def _from_dict(self, generation_dict: DatasetDict):
         if not isinstance(generation_dict, dict):
             raise Exception("Value passed to dataset object is not a dictionary")
         all_keys = {
@@ -97,7 +95,6 @@ class DatasetObject:
             self.drift_points = generation_dict["drift_points"]
             self.drift_widths = generation_dict["drift_widths"]
         self.num_of_samples = int(generation_dict["num_of_samples"])
-        self._validate()
 
     def to_string(self) -> str:
         self._validate()

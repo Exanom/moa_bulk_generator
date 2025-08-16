@@ -102,10 +102,13 @@ class InteractiveInputHanlder:
             "Specify the number of samples to generate: ", min_val=max_drift_point
         )
 
-        dataset = DatasetObject()
         try:
-            dataset.from_base_values(
-                gen, functions, drift_points, drift_widths, num_of_samples
+            dataset = DatasetObject(
+                generator=gen,
+                classification_functions=functions,
+                drits_points=drift_points,
+                drift_widths=drift_widths,
+                number_of_samples=num_of_samples,
             )
             clear_console()
             self._inspect_dataset(dataset)
@@ -130,7 +133,6 @@ class InteractiveInputHanlder:
         )
         clear_console()
         self._datasets.pop(int(to_delete) - 1)
-
 
     def _inspect_dataset(self, dataset_in: DatasetObject | None = None):
         if dataset_in is not None:
