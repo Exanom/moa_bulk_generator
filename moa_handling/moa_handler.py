@@ -1,8 +1,8 @@
-import subprocess
 import os
 from ..dataset_defs import DatasetObject
 import datetime
 from ..input_handling.utils import handle_input
+from .utils import execute_command
 
 
 class MOAHandler:
@@ -47,7 +47,7 @@ class MOAHandler:
 
         start_time = datetime.datetime.now()
         for dataset in datasets:
-            print(f"generating {dataset.to_string()}...")
+            print(f"generating {dataset.to_string()} to {out_dir}...")
             self._generate_dataset(dataset, out_dir)
         run_time = datetime.datetime.now() - start_time
         with open(out_dir + "/log.txt", "w") as f:
@@ -80,7 +80,7 @@ class MOAHandler:
         full_command = f'{command} "{generation_command}"'
 
         try:
-            self._execute_command(full_command)
+            execute_command(full_command)
         except:
             raise Exception(f"Execution of command failed: \n{full_command}")
 
@@ -94,16 +94,13 @@ class MOAHandler:
             + "\\lib\\sizeofag-1.1.0.jar moa.DoTask"
         )
         try:
-            self._execute_command(command)
+            execute_command(command)
         except Exception as e:
             raise Exception(
                 f"MOA couldn't be called. Make sure the information within config gile is correct. Attempted command:\n{command}"
             )
 
-    def _execute_command(self, command: str):
-        result = subprocess.run(command, capture_output=True)
-        if "error" in str(result.stdout).lower():
-            raise Exception()
+
 
     def _build_command(
         self,
