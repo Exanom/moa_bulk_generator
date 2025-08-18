@@ -3,16 +3,31 @@ from .utils import handle_input
 
 
 class FileInputHandler:
+    """
+    A class containing all the functionality related to loading datasets definitions from txt file.
+    """
     _dataset_path: str
     _dataset_strings: list[str]
     _dataset_objects: list[DatasetObject]
 
     def __init__(self, dataset_path: str):
+        """
+        FileInputHandler initialization. 
+
+        Parameters:
+            dataset_path (str): A path to a txt file containing the datasets definitions
+        """
         self._dataset_path = dataset_path
         self._dataset_strings = []
         self._dataset_objects = []
 
     def load_validate_file(self) -> list[DatasetObject]:
+        """
+        Loads and parses the strings within the txt file. In case of any invalid entries, will require user input to decide course of action.
+
+        Returns:
+            list[DatasetObject]: A list of dataset definition objects based on the file contents. If there were no valid datasets defintions within the file, returns an empty list.
+        """
         datasets = []
         with open(self._dataset_path) as f:
             datasets = f.read().splitlines()

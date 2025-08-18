@@ -5,12 +5,28 @@ from typing import Dict
 import uuid
 
 
-class InteractiveInputHanlder:
+class InteractiveInputHandler:
+    """
+    A class containing all the functionality related to interactive CLI of the script. Supports following functionalities:
+        1. List datasets to generate
+        2. Manually add datasets to generate
+        3. Manually remove chosen datasets from generation
+        4. Display information for a chosen dataset
+        5. Write list of current datasets to a txt file
+        6. Remove all datasets from the list
+        7. Generate listed datasets
+    """
     _datasets: list[DatasetObject]
     _commands: Dict[int, CommandDict]
     _running: bool
 
     def __init__(self, datasets: list[DatasetObject]):
+        """
+        InteractiveInputHandler initialization. 
+
+        Parameters:
+            datasets (list[DatasetObject]): A list of datasets to be initalized for the CLI. Can be empty
+        """
         self._datasets = datasets
         self._commands = {
             "a": {"name": "Add datset", "action": self._add_dataset},
@@ -24,6 +40,12 @@ class InteractiveInputHanlder:
         self._running = False
 
     def run(self) -> list[DatasetObject]:
+        """
+        Handles all the interation with the user. Provides the current state of the datasets and handles usage of predefined commands.
+
+        Returns:
+            list[DatasetObject]: A list containing all the datasets reflecting the end state of the user intearaction. Returns an empty list if user quits without generating
+        """
         self._running = True
 
         clear_console()
@@ -144,11 +166,12 @@ class InteractiveInputHanlder:
 
             indices = [str(x) for x in range(1, len(self._datasets) + 1)]
             to_show = handle_input(
-                "Specify index of the dataset to delete:", indices, indices[0]
+                "Specify index of the dataset to inspect:", indices, indices[0]
             )
             dataset = self._datasets[int(to_show) - 1]
 
         print(f"Name: {dataset.to_string()}")
+        print(f'Generaot: {dataset.get_generator_name()}')
         if len(dataset.classification_functions) > 1:
             for i in range(len(dataset.drift_points)):
                 print(f"Concept Drfit {i}:")
@@ -179,7 +202,7 @@ class InteractiveInputHanlder:
                 f"An error has occured during file write. Write datasets to {filename}?(Y/N)"
             )
             if save == "y":
-                with open(filename, "w") as f:
+                with open(filename, "w") as f:  
                     for dataset in self._datasets:
                         f.write(dataset.to_string() + "\n")
             self._datasets = []

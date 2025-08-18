@@ -6,15 +6,32 @@ from ..input_handling.utils import handle_input
 
 
 class MOAHandler:
+    """
+    A class containing all the functionality related to interacting with Java tool MOA.
+    """
     _java_executable: str = None
     _MOA_path: str = None
 
-    def __init__(self, java_executable: str, moa_path: str):
-        self._java_executable = java_executable
+    def __init__(self, java_path: str, moa_path: str):
+        """
+        MOAHandler initialization. After initializing, attempts to execute MOA command in order to validate provided values.
+
+        Parameters:
+            java_path (str): A path required to execute java program on user machine. By default just "java"  
+            moa_path (str): A path to the main directory of the MOA tool(directory containing the /bin directory),
+        """
+        self._java_executable = java_path
         self._MOA_path = moa_path
         self._validate_MOA()
 
     def generate(self, datasets: list[DatasetObject], out_dir: str):
+        """
+        Creates and executes commands necessary to generate specified datasets using MOA tool.
+
+        Parameters:
+            datasets (list[DatasetObject]): List of datasets to generate
+            out_dir (str): Directory where the generated datasets and log file will be saved
+        """
         if not os.path.isdir(out_dir):
             to_create = handle_input(
                 f"{os.path.abspath(out_dir)} does not exist. Create directory(Y/N):"
