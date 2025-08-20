@@ -63,9 +63,9 @@ class MOAHandler:
             self._java_executable
             + " -cp "
             + self._MOA_path
-            + "\\lib\\moa.jar -javaagent:"
+            + "/lib/moa.jar -javaagent:"
             + self._MOA_path
-            + "\\lib\\sizeofag-1.1.0.jar moa.DoTask"
+            + "/lib/sizeofag-1.1.0.jar moa.DoTask"
         )
         generation_command = "WriteStreamToARFFFile "
         if len(dataset_object.classification_functions) == 1:
@@ -155,9 +155,9 @@ class MOAHandler:
             self._java_executable
             + " -cp "
             + self._MOA_path
-            + "\\lib\\moa.jar -javaagent:"
+            + "/lib/moa.jar -javaagent:"
             + self._MOA_path
-            + "\\lib\\sizeofag-1.1.0.jar moa.DoTask"
+            + "/lib/sizeofag-1.1.0.jar moa.DoTask"
         )
         try:
             execute_command(command)
