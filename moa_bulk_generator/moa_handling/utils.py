@@ -22,8 +22,8 @@ def execute_command( command: str):
     """
     logger.info(f'Running command {command}')
     result = subprocess.run(split(command), capture_output=True)
-    if "error" in str(result.stdout).lower():
-        logger.error(f'Error detected: {str(result.stdout)}')
+    if("error" in str(result.stdout).lower() or "{M}assive {O}nline {A}nalysis" not in str(result.stderr)):
+        logger.error(f'Error detected: std_out: {str(result.stdout)} std_err: {str(result.stderr)}')
         raise Exception()
     
 

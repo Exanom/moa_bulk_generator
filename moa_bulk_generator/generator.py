@@ -78,7 +78,7 @@ class MOABulkGenerator:
                 "Java_path": 'path to execute java program(normally just "java" should work)',
             }
             with open(config_path, "w") as f:
-                json.dump(tmp, f)
+                json.dump(tmp, f, indent=4)
             raise Exception(
                 f"Config file not found. New Config file created at {os.path.abspath(config_path)}. Input required data there"
             )
