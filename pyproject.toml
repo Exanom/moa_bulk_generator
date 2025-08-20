@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "moa_bulk_generator"
+version = "0.1.0"
+description = "Generate multiple datasets with configurable concept drift using the Java MOA tool"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Piotr Sołtysik", email = "pit56482@gmail.com" }]
+requires-python = ">=3.7"
+dependencies = ["pandas>=2.3.1", "scipy>=1.16.1"]
+[project.scripts]
+moa_bulk = "moa_bulk_generator.__main__:main"

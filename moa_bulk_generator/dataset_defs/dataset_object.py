@@ -31,9 +31,9 @@ class DatasetObject:
         *,
         generator: str | None = None,
         classification_functions: list[int] | None = None,
-        drits_points: list[int] | None = None,
+        drift_points: list[int] | None = None,
         drift_widths: list[int] | None = None,
-        number_of_samples: int | None = None,
+        num_of_samples: int | None = None,
         dataste_string: str | None = None,
         dataset_dict: DatasetDict | None = None,
     ):
@@ -60,9 +60,9 @@ class DatasetObject:
         """
         self.generator = generator
         self.classification_functions = classification_functions
-        self.drift_points = drits_points
+        self.drift_points = drift_points
         self.drift_widths = drift_widths
-        self.num_of_samples = number_of_samples
+        self.num_of_samples = num_of_samples
         if dataste_string is not None:
             self._from_string(dataste_string)
         elif dataset_dict is not None:

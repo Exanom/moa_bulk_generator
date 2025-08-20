@@ -130,9 +130,9 @@ class InteractiveInputHandler:
             dataset = DatasetObject(
                 generator=gen,
                 classification_functions=functions,
-                drits_points=drift_points,
+                drift_points=drift_points,
                 drift_widths=drift_widths,
-                number_of_samples=num_of_samples,
+                num_of_samples=num_of_samples,
             )
             clear_console()
             self._inspect_dataset(dataset)
