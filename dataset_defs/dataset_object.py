@@ -9,7 +9,7 @@ class DatasetObject:
 
     Attributes:
         generator (str): Shorthand name of MOA Datastream to be used to generate the dataset.
-        classification_functions (list[int]): A list of all classification functions to be used in generation. If no concept drift should occur, there should be only one value in this list,
+        classification_functions (list[int]): A list of all classification functions to be used in generation. If no concept drift should occur, there should be only one value in this list, In case when two consecutive classification functions are equall, the label defintions will switch with each other.
         drift_points (list[int]): A list of points where the concept drift is to occur. Those points specify at which sample a given concept drift will be centered on.
         drift_width (list[int]): A list of widths for each concept drift occurences. The width defines over how many samples the drift will occur and allows to choose whether drift should be sudden or gradual,
         num_of_samples (int): Number of samples to be generated.
@@ -45,12 +45,12 @@ class DatasetObject:
         The priority of generation is as follows: string > dictionary > base values
         Parameters:
             genetor (str): Shorthand name of MOA Datasteream. Available generators are listed in GENERATORS static member
-            classification_functions (list[int]): A list of all classification functions to be used in generation. If no concept drift should occur, there should be only one value in this list,
-            drift_points (list[int]): A list of points where the concept drift is to occur. Those points specify at which sample a given concept drift will be centered on.
-            drift_width (list[int]): A list of widths for each concept drift occurences. The width defines over how many samples the drift will occur and allows to choose whether drift should be sudden or gradual,
-            num_of_samples (int): Number of samples to be generated.
+            classification_functions (list[int]): A list of all classification functions to be used in generation. If no concept drift should occur, there should be only one value in this list, In case when two consecutive classification functions are equall, the label defintions will switch with each other.
+            drift_points (list[int]): A list of points where the concept drift is to occur. Those points specify at which sample a given concept drift will be centered on
+            drift_width (list[int]): A list of widths for each concept drift occurences. The width defines over how many samples the drift will occur and allows to choose whether drift should be sudden or gradual
+            num_of_samples (int): Number of samples to be generated
             dataset_dict (DatasetDict): A dictionary with structure that fullfills the requirements specified by class DatasetDict
-            dataset_string (str): A string encoding parameters for the dataset. 
+            dataset_string (str): A string encoding parameters for the dataset
         ------
         Format for string generation:\n
             {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
@@ -68,6 +68,18 @@ class DatasetObject:
         elif dataset_dict is not None:
             self._from_dict(dataset_dict)
         self._validate()
+
+    def check_switching_drift(self) -> bool:
+        """
+        Checks whether special case of drift where two consecutive classification functions have equal values.
+
+        Returns:
+            bool: True if at least one case of equal consecutive funtions is present, False otherwise.
+        """
+        for i in range(1,len(self.classification_functions)):
+            if(self.classification_functions[i-1] == self.classification_functions[i]):
+                return True
+        return False
 
     def _from_string(self, generator_string: str):
         pattern = re.compile(
@@ -234,3 +246,4 @@ class DatasetObject:
 
         if self.num_of_samples <= 0:
             raise Exception("Must specify number of samples bigger than one")
+

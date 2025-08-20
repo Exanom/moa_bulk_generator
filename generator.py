@@ -54,6 +54,8 @@ class MOABulkGenerator:
         """
         Handles the main functionalities of the script, including loading definitions of datasets, invoking the CLI and generating the datasets. 
         """
+        print('MOA BULK GENERATOR')
+        print('All command executions will be logged in log.txt file in the library directory')
         datasets = []
         if self._dataset_file_path:
             file_handler = FileInputHandler(self._dataset_file_path)

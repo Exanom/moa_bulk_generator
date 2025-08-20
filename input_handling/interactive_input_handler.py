@@ -5,6 +5,7 @@ from typing import Dict
 import uuid
 
 
+
 class InteractiveInputHandler:
     """
     A class containing all the functionality related to interactive CLI of the script. Supports following functionalities:
@@ -60,6 +61,7 @@ class InteractiveInputHandler:
 
     def _print_headline(self):
         print("INTERACTIVE MOA BULK GENERATOR")
+        print('All command executions will be logged in log.txt file in the library directory')
         print("==========================")
         print("Datasets to generate:")
         for i, d in enumerate(self._datasets):

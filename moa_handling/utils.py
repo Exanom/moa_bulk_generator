@@ -1,6 +1,7 @@
 import subprocess
 import logging
 from pathlib import Path
+import math
 
 log_path = Path(__file__).resolve().parent.parent
 logging.basicConfig(
@@ -24,3 +25,10 @@ def execute_command( command: str):
         logger.error(f'Error detected: {str(result.stdout)}')
         raise Exception()
     
+
+def sigmoid(i, p, w):
+    x = -4.0 * (i - p) / w
+    
+    if(x>=700):
+        return 0
+    return 1.0 / (1.0 + math.exp(x))
