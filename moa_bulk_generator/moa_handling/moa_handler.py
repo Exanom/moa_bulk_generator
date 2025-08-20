@@ -163,7 +163,7 @@ class MOAHandler:
             execute_command(command)
         except Exception as e:
             raise Exception(
-                f"MOA couldn't be called. Make sure the information within config gile is correct. Attempted command:\n{command}"
+                f"MOA couldn't be called. Make sure the information within config file is correct. Attempted command:\n{command}"
             )
 
     def _build_command(

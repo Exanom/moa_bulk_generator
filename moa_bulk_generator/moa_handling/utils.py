@@ -2,6 +2,7 @@ import subprocess
 import logging
 from pathlib import Path
 import math
+from shlex import split
 
 log_path = Path(__file__).resolve().parent.parent
 logging.basicConfig(
@@ -20,7 +21,7 @@ def execute_command( command: str):
         command (str): String containing the command to be run
     """
     logger.info(f'Running command {command}')
-    result = subprocess.run(command, capture_output=True)
+    result = subprocess.run(split(command), capture_output=True)
     if "error" in str(result.stdout).lower():
         logger.error(f'Error detected: {str(result.stdout)}')
         raise Exception()
