@@ -146,9 +146,9 @@ python -m moa_bulk_generator -d datasets.txt -i --out synthetic --config moa_con
 
 The tool is configured via a JSON file. The following keys are used:
 
-- `"moa_path"`  
+- `"MOA_path"`  
   Path (absolute or relative to the current working directory) to the main MOA installation directory — the directory that contains the `lib/` folder.
-  > Note: The tool uses the MOA JARs located in `MOA_HOME/lib`. The two JARS specifically used(In our tests they were the only files required):
+  > Note: The tool uses the MOA JARs located in `MOA_path/lib`. The two JARS specifically used(In our tests they were the only files required):
   >
   > - `moa.jar`
   > - `sizeofag-1.1.0.jar`
@@ -277,4 +277,4 @@ moa_bulk_generator/
 - Load datasets from `.json` files.
 - Allow passing dataset definitions at runtime (as strings, dictionaries, or `DatasetObject` instances).
 - Add support for additional MOA datastreams.
-- Add support for `onceptDriftRealStream`.
+- Add support for `ConceptDriftRealStream`.
