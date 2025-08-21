@@ -1,6 +1,7 @@
 import argparse
 import sys
 from . import MOABulkGenerator
+from .dataset_defs import DatasetObject
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -23,6 +24,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--out", type=str, help="Specify output directory other than default."
     )
+    p.add_argument(
+        '--list',
+        '-l',
+        action="store_true",
+        help='List information on supported generators'
+    )
     return p
 
 
@@ -30,9 +37,17 @@ def main():
     parser = build_arg_parser()
     args = parser.parse_args()
 
-    if not args.interactive and not args.datasets:
+    if not args.interactive and not args.datasets and not args.list:
         parser.print_help(sys.stderr)
         sys.exit(0)
+    elif(args.list):
+        generatos = DatasetObject.GENERATORS
+        print('Supported Generators:')
+        for gen in generatos:
+            print(f'name: {gen}')
+            for key in generatos[gen]:
+                print(f'\t {key}:{generatos[gen][key]}')
+            
     else:
         moa = MOABulkGenerator(
             interactive=args.interactive,
