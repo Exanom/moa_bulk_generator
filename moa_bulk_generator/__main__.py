@@ -36,9 +36,9 @@ def main():
     else:
         moa = MOABulkGenerator(
             interactive=args.interactive,
-            datasets_file=args.datasets,
-            out_path=args.out,
-            config_path=args.config,
+            datasets=args.datasets,
+            out=args.out,
+            config=args.config,
         )
         moa.run()
 

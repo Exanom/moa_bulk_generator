@@ -14,6 +14,12 @@ class DatasetObject:
         drift_width (list[int]): A list of widths for each concept drift occurences. The width defines over how many samples the drift will occur and allows to choose whether drift should be sudden or gradual,
         num_of_samples (int): Number of samples to be generated.
         GENERATORS (dict[str,GeneratorInforDict]): Static member containing information on supported MOA Stream Generators.
+    ---
+    Format for string dataset definitons:\n
+          {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
+    When no concept drift is to occur, the shorthand version should be used:\n
+          {generator}_f_{function}_s_{number of samples}
+    ---
     """
     generator: str
     classification_functions: list[int]
@@ -52,10 +58,22 @@ class DatasetObject:
             dataset_dict (DatasetDict): A dictionary with structure that fullfills the requirements specified by class DatasetDict
             dataset_string (str): A string encoding parameters for the dataset
         ------
-        Format for string generation:\n
+        Format for string dataset definitons:\n
             {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
         When no concept drift is to occur, the shorthand version should be used:\n
             {generator}_f_{function}_s_{number of samples}
+        ------
+
+        Requirements for datasets:
+            1.The specified generator is supported
+            2.There is at least one classification function specified
+            3. All specified classification functions are supported
+            4. All specified drift point and drift width values are integers
+            5. There is exactly one more classification functions specified, than the number of drift point and width values 
+            6. The specified drift point values must be strictly rising
+            7. No drift area(centered on a given drift point, and expanding to width/2 around it in both directions) overlaps with any other drift area
+            8. No drift area overlaps with begining or end point of geneation
+            9. The specified number of samples is bigger than zero
         ------
         """
         self.generator = generator

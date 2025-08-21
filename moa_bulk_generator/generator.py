@@ -7,6 +7,24 @@ from .input_handling import FileInputHandler, InteractiveInputHandler
 class MOABulkGenerator:
     """
     Main entry class into the library, handles and delegates all aspects of acquring datasets defintions and generating datasets.
+
+    ------
+    Format for string dataset definitons:\n
+        {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
+    When no concept drift is to occur, the shorthand version should be used:\n
+        {generator}_f_{function}_s_{number of samples}
+    ------
+    Requirements for datasets:
+        1.The specified generator is supported
+        2.There is at least one classification function specified
+        3. All specified classification functions are supported
+        4. All specified drift point and drift width values are integers
+        5. There is exactly one more classification functions specified, than the number of drift point and width values 
+        6. The specified drift point values must be strictly rising
+        7. No drift area(centered on a given drift point, and expanding to width/2 around it in both directions) overlaps with any other drift area
+        8. No drift area overlaps with begining or end point of geneation
+        9. The specified number of samples is bigger than zero
+    ------
     """
     _moa_handler: MOAHandler = None
     _interactive: bool
@@ -15,10 +33,10 @@ class MOABulkGenerator:
 
     def __init__(
         self,
-        interactive: bool = True,
-        config_path: str ="config.json",
-        datasets_file: str = None,
-        out_path: str = "results",
+        interactive: bool = False,
+        config: str ="config.json",
+        datasets: str = None,
+        out: str = "results",
     ):
         """
         MOABulkGenerator initialization. 
@@ -30,7 +48,7 @@ class MOABulkGenerator:
             out_path (str): Directory where the generated datasets and log file will be saved
         
         ------
-        Format for string generation:\n
+        Format for string dataset definitons:\n
             {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
         When no concept drift is to occur, the shorthand version should be used:\n
             {generator}_f_{function}_s_{number of samples}
@@ -38,16 +56,16 @@ class MOABulkGenerator:
         """
 
         self._interactive = interactive
-        self._dataset_file_path = datasets_file
+        self._dataset_file_path = datasets
 
-        if out_path is not None:
-            self._out_path = out_path
+        if out is not None:
+            self._out_path = out
         else:
             self._out_path = "results"
-        if config_path is None:
-            config_path = "config.json"
+        if config is None:
+            config = "config.json"
 
-        java_executable, moa_path = self._load_config(config_path)
+        java_executable, moa_path = self._load_config(config)
         self._moa_handler = MOAHandler(java_executable, moa_path)
 
     def run(self):

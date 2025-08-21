@@ -21,9 +21,16 @@ def execute_command( command: str):
         command (str): String containing the command to be run
     """
     logger.info(f'Running command {command}')
-    result = subprocess.run(split(command), capture_output=True)
-    if("error" in str(result.stdout).lower() or "{M}assive {O}nline {A}nalysis" not in str(result.stderr)):
-        logger.error(f'Error detected: std_out: {str(result.stdout)} std_err: {str(result.stderr)}')
+    #TODO actually implement sensible error handling with custom exceptions
+    try:
+        result = subprocess.run(split(command), capture_output=True)
+        if("error" in str(result.stdout).lower() or "{M}assive {O}nline {A}nalysis" not in str(result.stderr)):
+            raise Exception()
+    except Exception as e:
+        if(str(e) == ''):
+            logger.error(f'std_out: {str(result.stdout)} std_err: {str(result.stderr)}')
+        else:
+            logger.error(f'command execution failed with {e}')
         raise Exception()
     
 
