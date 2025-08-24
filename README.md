@@ -109,12 +109,6 @@ Run the generator:
 bulk_generator.run()
 ```
 
-Once the object is properly initialized, the main functionality can be ran with run() method:
-
-```python
-bulk_generator.run()
-```
-
 ### Usage From Command Line
 
 Run in interactive mode (opens the CLI editor):
