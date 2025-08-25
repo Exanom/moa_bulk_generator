@@ -61,7 +61,7 @@ class FileInputHandler:
         to_generate = "y"
         if len(errors) > 0 and len(self._dataset_objects) > 0:
             to_generate = handle_input(
-                f"Load the remaining({len(datasets)}) datasets?(Y/N)"
+                f"Load the remaining({len(self._dataset_objects)}) datasets?(Y/N)"
             )
         if to_generate == "n":
             self._dataset_objects = []
