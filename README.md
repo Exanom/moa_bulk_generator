@@ -222,7 +222,7 @@ Agrawal_f_1_s_2000
 > Note: It's possible to validate the string definitions without generating them:
 >
 > ```python
-> datasets, errors = MOABulkGenerator.validate_datasets(args.validate)
+> datasets, errors = MOABulkGenerator.validate_datasets("datasets.txt")
 > print('Valid datasets:')
 > for dataset in datasets:
 >    print(f'\t {dataset.to_string()}')
