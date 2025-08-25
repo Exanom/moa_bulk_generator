@@ -1,7 +1,7 @@
 import math
 import re
 from .types import DatasetDict, GeneratorInfoDict
-
+from typeguard import check_type
 
 class DatasetObject:
     """
@@ -122,40 +122,18 @@ class DatasetObject:
         self.num_of_samples = int(m.group("s"))
 
     def _from_dict(self, generation_dict: DatasetDict):
-        if not isinstance(generation_dict, dict):
-            raise Exception("Value passed to dataset object is not a dictionary")
-        all_keys = {
-            "generator",
-            "classification_functions",
-            "drift_points",
-            "drift_widths",
-            "num_of_samples",
-        }
-        shorthand_keys = {"generator", "classification_functions", "num_of_samples"}
-        if (
-            generation_dict.keys() != all_keys
-            and generation_dict.keys() != shorthand_keys
-        ):
-            raise Exception(
-                f"Dictionary passed to dataset object does not comply to the necessary structure. Accepted structures: \n {all_keys} \n {shorthand_keys}"
-            )
-
-        if not isinstance(generation_dict["classification_functions"], list):
-            raise Exception("classification_functions field must be a list")
-        if "drift_points" in generation_dict.keys() and not isinstance(
-            generation_dict["drift_points"], list
-        ):
-            raise Exception("drift_points field must be a list")
-        if "drift_widths" in generation_dict.keys() and not isinstance(
-            generation_dict["drift_widths"], list
-        ):
-            raise Exception("drift_widths field must be a lis")
+        check_type(generation_dict,DatasetDict)
 
         self.generator = generation_dict["generator"]
         self.classification_functions = generation_dict["classification_functions"]
         if "drift_points" in generation_dict.keys():
             self.drift_points = generation_dict["drift_points"]
+        else:
+            self.drift_points = []
+        if "drift_widths" in generation_dict.keys():
             self.drift_widths = generation_dict["drift_widths"]
+        else:
+            self.drift_widths = []
         self.num_of_samples = int(generation_dict["num_of_samples"])
 
     def to_string(self) -> str:

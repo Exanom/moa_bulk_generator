@@ -1,5 +1,6 @@
 from ..dataset_defs import DatasetObject
 from .utils import handle_input
+import json
 
 
 class FileInputHandler:
@@ -23,18 +24,30 @@ class FileInputHandler:
 
     def load_validate_file(self) -> tuple[list[DatasetObject], list[str]]:
         datasets = []
-        with open(self._dataset_path) as f:
-            datasets = f.read().splitlines()
-        # remove empty strings
-        self._dataset_strings = list(filter(None, datasets))
-
         errors = []
-        for i, dataset in enumerate(self._dataset_strings):
-            try:
-                d_object = DatasetObject(dataste_string=dataset)
-                self._dataset_objects.append(d_object)
-            except Exception as e:
-                errors.append(f"line {i+1}: {dataset} -> error: {e}")
+        if(self._dataset_path.endswith('.json')):
+            with open(self._dataset_path) as f:
+                datasets = json.load(f)
+            for i,dataset in enumerate(datasets):
+                try:    
+                    d_object = DatasetObject(dataset_dict=dataset)
+                    self._dataset_objects.append(d_object)
+                except Exception as e:
+                    errors.append(f"object {i+1}: {dataset} -> error: {e}")
+                
+        else:
+            with open(self._dataset_path) as f:
+                datasets = f.read().splitlines()
+            # remove empty strings
+            self._dataset_strings = list(filter(None, datasets))
+
+            errors = []
+            for i, dataset in enumerate(self._dataset_strings):
+                try:
+                    d_object = DatasetObject(dataste_string=dataset)
+                    self._dataset_objects.append(d_object)
+                except Exception as e:
+                    errors.append(f"line {i+1}: {dataset} -> error: {e}")
         return (self._dataset_objects, errors)
 
     def load_validate_file_runtime(self) -> list[DatasetObject]:

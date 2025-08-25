@@ -237,6 +237,25 @@ Agrawal_f_1_s_2000
 > python -m moa_bulk_generator --validate datasets.txt
 > ```
 
+It is also possible to load datasets from json file:
+
+```json
+[
+  {
+    "generator": "STAGGER",
+    "classification_functions": [1],
+    "num_of_samples": 100
+  },
+  {
+    "generator": "Agrawal",
+    "classification_functions": [1, 2],
+    "num_of_samples": 1000,
+    "drift_points": [100],
+    "drift_widths": [1]
+  }
+]
+```
+
 ---
 
 ## Switching Concept Drift
