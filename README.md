@@ -219,6 +219,24 @@ In cases when the dataset should have no concept drifts, the `p` and `w` keyword
 Agrawal_f_1_s_2000
 ```
 
+> Note: It's possible to validate the string definitions without generating them:
+>
+> ```python
+> datasets, errors = MOABulkGenerator.validate_datasets(args.validate)
+> print('Valid datasets:')
+> for dataset in datasets:
+>    print(f'\t {dataset.to_string()}')
+> print('Errors:')
+> for error in errors:
+>    print(f'\t {error}')
+> ```
+>
+> Or call the module with `--validate` parameter:
+>
+> ```bash
+> python -m moa_bulk_generator --validate datasets.txt
+> ```
+
 ---
 
 ## Switching Concept Drift

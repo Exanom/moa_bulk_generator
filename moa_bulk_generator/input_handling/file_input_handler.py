@@ -21,13 +21,7 @@ class FileInputHandler:
         self._dataset_strings = []
         self._dataset_objects = []
 
-    def load_validate_file(self) -> list[DatasetObject]:
-        """
-        Loads and parses the strings within the txt file. In case of any invalid entries, will require user input to decide course of action.
-
-        Returns:
-            list[DatasetObject]: A list of dataset definition objects based on the file contents. If there were no valid datasets defintions within the file, returns an empty list.
-        """
+    def load_validate_file(self) -> tuple[list[DatasetObject], list[str]]:
         datasets = []
         with open(self._dataset_path) as f:
             datasets = f.read().splitlines()
@@ -41,6 +35,16 @@ class FileInputHandler:
                 self._dataset_objects.append(d_object)
             except Exception as e:
                 errors.append(f"line {i+1}: {dataset} -> error: {e}")
+        return (self._dataset_objects, errors)
+
+    def load_validate_file_runtime(self) -> list[DatasetObject]:
+        """
+        Loads and parses the strings within the txt file. In case of any invalid entries, will require user input to decide course of action.
+
+        Returns:
+            list[DatasetObject]: A list of dataset definition objects based on the file contents. If there were no valid datasets defintions within the file, returns an empty list.
+        """
+        _, errors = self.load_validate_file()
         print("")
 
         if len(self._dataset_objects) > 0:

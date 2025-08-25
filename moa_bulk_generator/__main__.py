@@ -19,6 +19,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Run interactive configuration.",
     )
     p.add_argument(
+        "--validate",
+        type=str,
+        help="Validate the dataset definitions within the specified txt file without generating them.",
+    )
+    p.add_argument(
         "--config", type=str, help="Speicify configuration json file other than default"
     )
     p.add_argument(
@@ -35,9 +40,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main():
     parser = build_arg_parser()
-    args = parser.parse_args()
-
-    if not args.interactive and not args.datasets and not args.list:
+    args = parser.parse_args()  
+    if not args.interactive and not args.datasets and not args.list and not args.validate:
         parser.print_help(sys.stderr)
         sys.exit(0)
     elif(args.list):
@@ -47,7 +51,14 @@ def main():
             print(f'name: {gen}')
             for key in generatos[gen]:
                 print(f'\t {key}:{generatos[gen][key]}')
-            
+    elif(args.validate):
+        datasets, errors = MOABulkGenerator.validate_datasets(args.validate)
+        print('Valid datasets:')
+        for dataset in datasets:
+            print(f'\t {dataset.to_string()}')
+        print('Errors:')
+        for error in errors:
+            print(f'\t {error}')
     else:
         moa = MOABulkGenerator(
             interactive=args.interactive,

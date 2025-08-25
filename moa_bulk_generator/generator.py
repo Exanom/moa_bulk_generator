@@ -2,6 +2,7 @@ import json
 import os
 from .moa_handling import MOAHandler
 from .input_handling import FileInputHandler, InteractiveInputHandler
+from .dataset_defs import DatasetObject
 
 
 class MOABulkGenerator:
@@ -77,7 +78,7 @@ class MOABulkGenerator:
         datasets = []
         if self._dataset_file_path:
             file_handler = FileInputHandler(self._dataset_file_path)
-            datasets = file_handler.load_validate_file()
+            datasets = file_handler.load_validate_file_runtime()
 
         if self._interactive:
             input_handler = InteractiveInputHandler(datasets)
@@ -110,3 +111,7 @@ class MOABulkGenerator:
         java_path = config["Java_path"]
 
         return (java_path, moa_path)
+
+    def validate_datasets(dataset_path:str) -> tuple[list[DatasetObject],list[str]]:
+        file_handler = FileInputHandler(dataset_path)
+        return file_handler.load_validate_file()
