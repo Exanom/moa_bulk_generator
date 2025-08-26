@@ -317,6 +317,5 @@ moa_bulk_generator/
 
 ## Planned Features
 
-- Allow passing dataset definitions at runtime (as strings, dictionaries, or `DatasetObject` instances).
 - Add support for additional MOA datastreams.
 - Add support for `ConceptDriftRealStream`.
