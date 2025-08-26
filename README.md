@@ -192,6 +192,28 @@ Each dataset is described by a set of named fields. Supported fields:
   > python -m moa_bulk_generator -l
   > ```
 
+### Dataset Json Definition
+
+It is possible to load datasets from json file:
+
+```json
+[
+  {
+    "generator": "STAGGER",
+    "classification_functions": [1],
+    "num_of_samples": 100
+  },
+  {
+    "generator": "Agrawal",
+    "classification_functions": [1, 2],
+    "num_of_samples": 1000,
+    "drift_points": [100],
+    "drift_widths": [1]
+  }
+]
+```
+
+
 ### Dataset String Definition
 
 Multiple dataset definitions can be stored inside a text file — one dataset per line.  
@@ -237,24 +259,6 @@ Agrawal_f_1_s_2000
 > python -m moa_bulk_generator --validate datasets.txt
 > ```
 
-It is also possible to load datasets from json file:
-
-```json
-[
-  {
-    "generator": "STAGGER",
-    "classification_functions": [1],
-    "num_of_samples": 100
-  },
-  {
-    "generator": "Agrawal",
-    "classification_functions": [1, 2],
-    "num_of_samples": 1000,
-    "drift_points": [100],
-    "drift_widths": [1]
-  }
-]
-```
 
 ---
 
