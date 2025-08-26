@@ -5,6 +5,9 @@ from .input_handling import FileInputHandler, InteractiveInputHandler
 from .dataset_defs import DatasetObject
 
 
+#store datasets in a member, allow adding and deleting datasets. create dynamicInputHandler that takes in the lists of dicts, strings and returns datasetobjects.
+#add distinct method for loading from file, run should only generate the loaded datasets(and dynamic)
+
 class MOABulkGenerator:
     """
     Main entry class into the library, handles and delegates all aspects of acquring datasets defintions and generating datasets.
@@ -113,5 +116,14 @@ class MOABulkGenerator:
         return (java_path, moa_path)
 
     def validate_datasets(dataset_path:str) -> tuple[list[DatasetObject],list[str]]:
+        """
+        Validates dataset definitions.
+
+        Parameters:
+            dataset_path (str): Path to the json or txt file containing dataset definitions
+        
+        Returns:
+            (typle[list[DatasetObject],list[str]]): Tuple where the first element is a list of valid datasets, and the second element is a list of error messages
+        """
         file_handler = FileInputHandler(dataset_path)
         return file_handler.load_validate_file()
