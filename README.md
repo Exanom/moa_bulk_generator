@@ -85,28 +85,38 @@ Import the main class:
 from moa_bulk_generator import MOABulkGenerator
 ```
 
-Initialize the generator (examples):
+Initialize the generator:
 
 ```python
-# interactive mode
-bulk_generator = MOABulkGenerator(interactive=True)
-
-# automatic mode (load definitions from a file)
-bulk_generator = MOABulkGenerator(datasets='datasets.txt')
+bulk_generator = MOABulkGenerator()
 
 # full constructor
 bulk_generator = MOABulkGenerator(
-    interactive=True,
-    datasets='datasets.txt',
     config='custom_config.json',
     out='datasets/synthetic'
 )
 ```
 
+Load datasets from a file:
+
+```python
+bulk_generator.load_from_file('datasets.json')
+```
+
+Add datasets from a list:
+
+```python
+datasets = [
+    'Agrawal_f_1_s_1000',
+    'STAGGER_f_1_2_p_200_w_1_s_1000'
+]
+bulk_generator.add_datasets(datasets)
+```
+
 Run the generator:
 
 ```python
-bulk_generator.run()
+bulk_generator.run(interative=False)
 ```
 
 ### Usage From Command Line
@@ -213,7 +223,6 @@ It is possible to load datasets from json file:
 ]
 ```
 
-
 ### Dataset String Definition
 
 Multiple dataset definitions can be stored inside a text file — one dataset per line.  
@@ -258,7 +267,6 @@ Agrawal_f_1_s_2000
 > ```bash
 > python -m moa_bulk_generator --validate datasets.txt
 > ```
-
 
 ---
 

@@ -45,7 +45,7 @@ class InteractiveInputHandler:
         Handles all the interation with the user. Provides the current state of the datasets and handles usage of predefined commands.
 
         Returns:
-            list[DatasetObject]: A list containing all the datasets reflecting the end state of the user intearaction. Returns an empty list if user quits without generating
+            list[DatasetObject]: A list containing all the datasets reflecting the end state of the user interaction(all the datasets, not just the new ones). Returns an empty list if user quits without generating
         """
         self._running = True
 

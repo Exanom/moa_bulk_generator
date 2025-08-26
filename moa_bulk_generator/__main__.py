@@ -61,12 +61,12 @@ def main():
             print(f'\t {error}')
     else:
         moa = MOABulkGenerator(
-            interactive=args.interactive,
-            datasets=args.datasets,
             out=args.out,
             config=args.config,
         )
-        moa.run()
+        if(args.datasets):
+            moa.load_from_file(args.datasets)
+        moa.run(args.interactive)
 
 
 if __name__ == "__main__":

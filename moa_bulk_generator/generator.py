@@ -2,7 +2,8 @@ import json
 import os
 from .moa_handling import MOAHandler
 from .input_handling import FileInputHandler, InteractiveInputHandler
-from .dataset_defs import DatasetObject
+from .dataset_defs import DatasetObject, DatasetDict
+from typeguard import check_type
 
 
 #store datasets in a member, allow adding and deleting datasets. create dynamicInputHandler that takes in the lists of dicts, strings and returns datasetobjects.
@@ -11,6 +12,9 @@ from .dataset_defs import DatasetObject
 class MOABulkGenerator:
     """
     Main entry class into the library, handles and delegates all aspects of acquring datasets defintions and generating datasets.
+
+    Attributes:
+        datasets (list[DatasetObject]): list of loaded datasets
 
     ------
     Format for string dataset definitons:\n
@@ -34,12 +38,11 @@ class MOABulkGenerator:
     _interactive: bool
     _dataset_file_path: str
     _out_path: str
+    datasets: list[DatasetObject]
 
     def __init__(
         self,
-        interactive: bool = False,
         config: str ="config.json",
-        datasets: str = None,
         out: str = "results",
     ):
         """
@@ -59,8 +62,7 @@ class MOABulkGenerator:
         ------
         """
 
-        self._interactive = interactive
-        self._dataset_file_path = datasets
+        self.datasets = []
 
         if out is not None:
             self._out_path = out
@@ -71,23 +73,49 @@ class MOABulkGenerator:
 
         java_executable, moa_path = self._load_config(config)
         self._moa_handler = MOAHandler(java_executable, moa_path)
+    
+    def load_from_file(self, dataset_path:str):
+        """
+        Loads dataset definitions from a file and appends them to the object dataset list.
 
-    def run(self):
+        Parametrs:
+            dataset_path (str): Path to txt or json file containing dataset defintions
+        """
+        file_handler = FileInputHandler(dataset_path)
+        datasets, errors = file_handler.load_validate_file()
+        self.datasets.extend(datasets)
+    
+    def add_datasets(self, dataset_definitions: list[str] | list[DatasetDict]):
+        dataset_tmp = []
+        for dataset in dataset_definitions:
+            if(isinstance(dataset,str)):
+                d_object = DatasetObject(dataste_string=dataset)
+                dataset_tmp.append(d_object)
+            elif(check_type(dataset, DatasetDict)):
+                d_object = DatasetObject(dataset_dict=dataset)
+                dataset_tmp.append(d_object)
+            else:
+                raise Exception('Dataset definitions must be either string or Dataset Dictionary')
+        self.datasets.extend(dataset_tmp)
+
+
+        
+        
+    def run(self, interactive:bool = False):
         """
         Handles the main functionalities of the script, including loading definitions of datasets, invoking the CLI and generating the datasets. 
+
+        Parameters:
+            interactive (bool):  Enables interactive CLI mode
         """
         print('MOA BULK GENERATOR')
         print('All command executions will be logged in log.txt file in the library directory')
-        datasets = []
-        if self._dataset_file_path:
-            file_handler = FileInputHandler(self._dataset_file_path)
-            datasets = file_handler.load_validate_file_runtime()
 
-        if self._interactive:
-            input_handler = InteractiveInputHandler(datasets)
-            datasets = input_handler.run()
+        if interactive:
+            input_handler = InteractiveInputHandler(self.datasets)
+            self.datasets = input_handler.run()
 
-        self._moa_handler.generate(datasets, self._out_path)
+        self._moa_handler.generate(self.datasets, self._out_path)
 
     def _load_config(self, config_path: str) -> tuple[str, str]:
         config = None
