@@ -7,10 +7,12 @@ from scipy.io import arff as scipy_arff
 import pandas as pd
 import random
 
+
 class MOAHandler:
     """
     A class containing all the functionality related to interacting with Java tool MOA.
     """
+
     _java_executable: str = None
     _MOA_path: str = None
 
@@ -19,7 +21,7 @@ class MOAHandler:
         MOAHandler initialization. After initializing, attempts to execute MOA command in order to validate provided values.
 
         Parameters:
-            java_path (str): A path required to execute java program on user machine. By default just "java"  
+            java_path (str): A path required to execute java program on user machine. By default just "java"
             moa_path (str): A path to the main directory of the MOA tool(directory containing the /bin directory),
         """
         self._java_executable = java_path
@@ -78,77 +80,102 @@ class MOAHandler:
                 dataset_object.drift_widths,
             )
 
-        generation_command += f" -f {out_dir}/{dataset_object.to_string()}.arrf -m {str(dataset_object.num_of_samples)}"
+        generation_command += f" -f {out_dir}/{dataset_object.to_string()}.arff -m {str(dataset_object.num_of_samples)}"
         full_command = f'{command} "{generation_command}"'
 
         try:
             execute_command(full_command)
         except:
             raise Exception(f"Execution of command failed: \n{full_command}")
-        
-        #Handle switching CD
-        if(dataset_object.check_switching_drift()):
-            self._handle_switching_drift(dataset_object, f'{out_dir}/{dataset_object.to_string()}.arrf')
+
+        # Handle switching CD
+        if dataset_object.check_switching_drift():
+            self._handle_switching_drift(
+                dataset_object, f"{out_dir}/{dataset_object.to_string()}.arff"
+            )
 
     def _handle_switching_drift(self, dataset_object: DatasetObject, dataset_file: str):
         dataset, meta = scipy_arff.loadarff(dataset_file)
         dataset = pd.DataFrame(dataset)
 
-        classes = dataset.iloc[:,-1].unique()
+        classes = dataset.iloc[:, -1].unique()
         for i in range(len(dataset_object.drift_points)):
-            if(dataset_object.classification_functions[i] == dataset_object.classification_functions[i+1]):
-                if(i<len(dataset_object.drift_points)-1):
-                    self._apply_label_drift(dataset,dataset_object.drift_points[i],dataset_object.drift_widths[i],classes,dataset_object.drift_points[i+1],dataset_object.drift_widths[i+1])
+            if (
+                dataset_object.classification_functions[i]
+                == dataset_object.classification_functions[i + 1]
+            ):
+                if i < len(dataset_object.drift_points) - 1:
+                    self._apply_label_drift(
+                        dataset,
+                        dataset_object.drift_points[i],
+                        dataset_object.drift_widths[i],
+                        classes,
+                        dataset_object.drift_points[i + 1],
+                        dataset_object.drift_widths[i + 1],
+                    )
                 else:
-                    self._apply_label_drift(dataset,dataset_object.drift_points[i],dataset_object.drift_widths[i],classes)
-        
+                    self._apply_label_drift(
+                        dataset,
+                        dataset_object.drift_points[i],
+                        dataset_object.drift_widths[i],
+                        classes,
+                    )
+
         self._overwrite_arff_file(dataset, meta, dataset_file)
-     
-    def _apply_label_drift(self, dataset: pd.DataFrame, p:int, w:int, classes:list[any], p_next: int|None = None, w_next: int|None = None):
-        if len(classes)>0:
+
+    def _apply_label_drift(
+        self,
+        dataset: pd.DataFrame,
+        p: int,
+        w: int,
+        classes: list[any],
+        p_next: int | None = None,
+        w_next: int | None = None,
+    ):
+        if len(classes) > 0:
             perm = classes.copy()
-            while((perm == classes).all()):
+            while (perm == classes).all():
                 random.shuffle(perm)
             mapping = {classes[i]: perm[i] for i in range(len(classes))}
 
-        for i, sample in enumerate(dataset.iloc[:,-1], start=1):
+        for i, sample in enumerate(dataset.iloc[:, -1], start=1):
             prob = sigmoid(i, p, w)
 
-            #handle early exit if the next drift is likely to take effect
-            if(p_next):
-                #probabilty that the sample was classified by the next classification function
-                next_prob = sigmoid(i,p_next,w_next)
-                #If our current drift already occured, and its probability is within the margin of the probability of the next drift, break
-                if(prob > 0.99 and prob-next_prob<0.01):
+            # handle early exit if the next drift is likely to take effect
+            if p_next:
+                # probabilty that the sample was classified by the next classification function
+                next_prob = sigmoid(i, p_next, w_next)
+                # If our current drift already occured, and its probability is within the margin of the probability of the next drift, break
+                if prob > 0.99 and prob - next_prob < 0.01:
                     break
-            if random.random() < prob-next_prob:
-                dataset.iloc[i-1,-1] = mapping.get(sample)
-            
-    #Important to fit format of arff file generated by MOA
-    def _overwrite_arff_file(self, data:pd.DataFrame, meta_data: scipy_arff.MetaData, path:str):
+            if random.random() < prob - next_prob:
+                dataset.iloc[i - 1, -1] = mapping.get(sample)
+
+    # Important to fit format of arff file generated by MOA
+    def _overwrite_arff_file(
+        self, data: pd.DataFrame, meta_data: scipy_arff.MetaData, path: str
+    ):
         types = meta_data.types()
 
         file_data = []
         with open(path) as f:
             file_data = f.readlines()
-        data_index = file_data.index('@data\n')
+        data_index = file_data.index("@data\n")
 
         data_arr = []
         for sample in data.values:
-            data_str = ''
+            data_str = ""
             for j, value in enumerate(sample):
-                if(types[j] == 'nominal'):
-                    data_str += value.decode('utf-8')
+                if types[j] == "nominal":
+                    data_str += value.decode("utf-8")
                 else:
                     data_str += str(value)
-                data_str+=','  
-            data_arr.append(data_str + '\n')  
+                data_str += ","
+            data_arr.append(data_str + "\n")
 
-        file_data[data_index+2:] = data_arr
-        with open(path, 'w') as f:
-           f.writelines(file_data)
-
-
+        file_data[data_index + 2 :] = data_arr
+        with open(path, "w") as f:
+            f.writelines(file_data)
 
     def _validate_MOA(self):
         command = (
