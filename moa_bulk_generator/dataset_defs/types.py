@@ -1,6 +1,7 @@
 from typing import TypedDict, NotRequired
 
 
+# TODO add seed key
 class DatasetDict(TypedDict):
     generator: str
     classification_functions: list[int]

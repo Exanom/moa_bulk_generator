@@ -5,7 +5,6 @@ from typing import Dict
 import uuid
 
 
-
 class InteractiveInputHandler:
     """
     A class containing all the functionality related to interactive CLI of the script. Supports following functionalities:
@@ -17,13 +16,14 @@ class InteractiveInputHandler:
         6. Remove all datasets from the list
         7. Generate listed datasets
     """
+
     _datasets: list[DatasetObject]
     _commands: Dict[int, CommandDict]
     _running: bool
 
     def __init__(self, datasets: list[DatasetObject]):
         """
-        InteractiveInputHandler initialization. 
+        InteractiveInputHandler initialization.
 
         Parameters:
             datasets (list[DatasetObject]): A list of datasets to be initalized for the CLI. Can be empty
@@ -61,7 +61,9 @@ class InteractiveInputHandler:
 
     def _print_headline(self):
         print("INTERACTIVE MOA BULK GENERATOR")
-        print('All command executions will be logged in log.txt file in the library directory')
+        print(
+            "All command executions will be logged in log.txt file in the library directory"
+        )
         print("==========================")
         print("Datasets to generate:")
         for i, d in enumerate(self._datasets):
@@ -73,6 +75,7 @@ class InteractiveInputHandler:
         for key, command in self._commands.items():
             print(f"\t{key} - {command['name']}")
 
+    # TODO add input option for the seed value, pass it to Dataset Object
     def _add_dataset(self):
         self._print_headline()
         print("Generators:")
@@ -173,7 +176,7 @@ class InteractiveInputHandler:
             dataset = self._datasets[int(to_show) - 1]
 
         print(f"Name: {dataset.to_string()}")
-        print(f'Generaot: {dataset.get_generator_name()}')
+        print(f"Generaot: {dataset.get_generator_name()}")
         if len(dataset.classification_functions) > 1:
             for i in range(len(dataset.drift_points)):
                 print(f"Concept Drfit {i}:")
@@ -204,7 +207,7 @@ class InteractiveInputHandler:
                 f"An error has occured during file write. Write datasets to {filename}?(Y/N)"
             )
             if save == "y":
-                with open(filename, "w") as f:  
+                with open(filename, "w") as f:
                     for dataset in self._datasets:
                         f.write(dataset.to_string() + "\n")
             self._datasets = []
