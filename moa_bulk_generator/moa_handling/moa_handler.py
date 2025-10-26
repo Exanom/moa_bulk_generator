@@ -81,7 +81,7 @@ class MOAHandler:
                 dataset_object.drift_widths,
                 dataset_object.seed_value,
             )
-        # TODO add seed parameter here I think, check moa documentation
+
         generation_command += f" -f {out_dir}/{dataset_object.to_string()}.arff -m {str(dataset_object.num_of_samples)}"
         full_command = f'{command} "{generation_command}"'
 

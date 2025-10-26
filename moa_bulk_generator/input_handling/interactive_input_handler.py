@@ -75,7 +75,7 @@ class InteractiveInputHandler:
         for key, command in self._commands.items():
             print(f"\t{key} - {command['name']}")
 
-    # TODO add input option for the seed value, pass it to Dataset Object
+   
     def _add_dataset(self):
         self._print_headline()
         print("Generators:")
