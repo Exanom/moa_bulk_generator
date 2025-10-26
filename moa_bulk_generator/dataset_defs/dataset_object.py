@@ -1,5 +1,6 @@
 import math
 import re
+import random
 from .types import DatasetDict, GeneratorInfoDict
 from typeguard import check_type
 
@@ -15,10 +16,13 @@ class DatasetObject:
         drift_points (list[int]): A list of points where the concept drift is to occur. Those points specify at which sample a given concept drift will be centered on.
         drift_width (list[int]): A list of widths for each concept drift occurences. The width defines over how many samples the drift will occur and allows to choose whether drift should be sudden or gradual,
         num_of_samples (int): Number of samples to be generated.
+        seed_value (int): Seed value to be used to generate the dataset. If no seed is provided, a random value is generated.
         GENERATORS (dict[str,GeneratorInforDict]): Static member containing information on supported MOA Stream Generators.
     ---
     Format for string dataset definitons:\n
           {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
+    Format for string dataset definitons to set seed value (optional):\n
+          {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}_r_{seed value}
     When no concept drift is to occur, the shorthand version should be used:\n
           {generator}_f_{function}_s_{number of samples}
     ---
@@ -29,6 +33,7 @@ class DatasetObject:
     drift_points: list[int]
     drift_widths: list[int]
     num_of_samples: int
+    seed_value: int
     GENERATORS: dict[str, GeneratorInfoDict] = {
         "Agrawal": {"fullName": "AgrawalGenerator", "functions": list(range(1, 12))},
         "STAGGER": {"fullName": "STAGGERGenerator", "functions": list(range(1, 4))},
@@ -46,6 +51,7 @@ class DatasetObject:
         num_of_samples: int | None = None,
         dataste_string: str | None = None,
         dataset_dict: DatasetDict | None = None,
+        seed_value: int | None = None,
     ):
         """
         DatasetObject initialization. Provides three possible ways for creating the object:
@@ -61,9 +67,12 @@ class DatasetObject:
             num_of_samples (int): Number of samples to be generated
             dataset_dict (DatasetDict): A dictionary with structure that fullfills the requirements specified by class DatasetDict
             dataset_string (str): A string encoding parameters for the dataset
+            seed_value (int): Seed value to be used to generate the dataset. If no seed is provided, a random value is generated
         ------
         Format for string dataset definitons:\n
             {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
+        Format for string dataset definitons to set seed value (optional):\n
+            {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}_r_{seed value}
         When no concept drift is to occur, the shorthand version should be used:\n
             {generator}_f_{function}_s_{number of samples}
         ------
@@ -78,6 +87,7 @@ class DatasetObject:
             7. No drift area(centered on a given drift point, and expanding to width/2 around it in both directions) overlaps with any other drift area
             8. No drift area overlaps with begining or end point of geneation
             9. The specified number of samples is bigger than zero
+            10. Seed must be an integer from 0 to 9999
         ------
         """
         self.generator = generator
@@ -85,6 +95,7 @@ class DatasetObject:
         self.drift_points = drift_points
         self.drift_widths = drift_widths
         self.num_of_samples = num_of_samples
+        self.seed_value = seed_value
         if dataste_string is not None:
             self._from_string(dataste_string)
         elif dataset_dict is not None:
@@ -109,12 +120,14 @@ class DatasetObject:
             r"^(?P<name>[^_]+)"  # generator name (no underscores)
             r"_f_(?P<f_vals>\d+(?:_\d+)*)"  # f values (one or more ints separated by _)
             r"(?:_p_(?P<p_vals>\d+(?:_\d+)*)_w_(?P<w_vals>\d+(?:_\d+)*))?"  # optional p and w blocks
-            r"_s_(?P<s>\d+)$"  # final s integer
+            r"_s_(?P<s>\d+)"  # final s integer
+            r"(?:_r_(?P<r>\d{1,4}))?"    # optional r integer
+            r"$"
         )
 
         m = pattern.fullmatch(generator_string)
         if not m:
-            raise Exception(f"Invalid string for pasrsing:: {generator_string}")
+            raise Exception(f"Invalid string for parsing:: {generator_string}")
 
         self.generator = m.group("name")
         self.classification_functions = [int(x) for x in m.group("f_vals").split("_")]
@@ -125,6 +138,7 @@ class DatasetObject:
             self.drift_points = []
             self.drift_widths = []
         self.num_of_samples = int(m.group("s"))
+        self.seed_value = int(r) if (r := m.group("r")) else None
 
     # TODO seed value
     def _from_dict(self, generation_dict: DatasetDict):
@@ -141,6 +155,7 @@ class DatasetObject:
         else:
             self.drift_widths = []
         self.num_of_samples = int(generation_dict["num_of_samples"])
+        self.seed_value = int(generation_dict["seed_value"])
 
     # TODO seed value
     def to_string(self) -> str:
@@ -168,6 +183,8 @@ class DatasetObject:
                 res += str(width) + "_"
 
         res += "s_" + str(self.num_of_samples)
+
+        res += "_r_" + str(self.seed_value)
         return res
 
     def get_generator_name(self) -> str:
@@ -192,6 +209,7 @@ class DatasetObject:
             7. No drift area(centered on a given drift point, and expanding to width/2 around it in both directions) overlaps with any other drift area
             8. No drift area overlaps with begining or end point of geneation
             9. The specified number of samples is bigger than zero
+            10. Seed must be an integer from 0 to 9999
         """
         if self.generator not in DatasetObject.GENERATORS.keys():
             raise Exception(
@@ -250,3 +268,10 @@ class DatasetObject:
 
         if self.num_of_samples <= 0:
             raise Exception("Must specify number of samples bigger than one")
+
+        if self.seed_value is not None:
+            if self.seed_value < 0 or self.seed_value > 9999:
+                raise Exception("Must specify seed value bigger than -1 or lower than 10000")
+        else:
+            value = random.randint(0, 9999)
+            self.seed_value = value
