@@ -129,6 +129,13 @@ class InteractiveInputHandler:
             "Specify the number of samples to generate: ", min_val=max_drift_point
         )
 
+        seed_answer = handle_input("Specify the seed value if you want?(Y/N)")
+        seed_value = None
+        if seed_answer == "y":
+            seed_value = handle_input_int(
+                "Specify the seed value for generator: ", min_val=0, max_val=9999
+            )
+
         try:
             dataset = DatasetObject(
                 generator=gen,
@@ -136,6 +143,7 @@ class InteractiveInputHandler:
                 drift_points=drift_points,
                 drift_widths=drift_widths,
                 num_of_samples=num_of_samples,
+                seed_value=seed_value,
             )
             clear_console()
             self._inspect_dataset(dataset)
@@ -176,10 +184,10 @@ class InteractiveInputHandler:
             dataset = self._datasets[int(to_show) - 1]
 
         print(f"Name: {dataset.to_string()}")
-        print(f"Generaot: {dataset.get_generator_name()}")
+        print(f"Generator: {dataset.get_generator_name()}")
         if len(dataset.classification_functions) > 1:
             for i in range(len(dataset.drift_points)):
-                print(f"Concept Drfit {i}:")
+                print(f"Concept Drift {i}:")
                 print(
                     f"\t Classification functions: {dataset.classification_functions[i]}->{dataset.classification_functions[i+1]}"
                 )
@@ -188,6 +196,7 @@ class InteractiveInputHandler:
         else:
             print(f"Classification function: {dataset.classification_functions[0]}")
         print(f"Number of samples: {dataset.num_of_samples}")
+        print(f"Seed value: {dataset.seed_value}")
 
         if dataset_in is None:
             handle_input("Press enter to continue...", None)
