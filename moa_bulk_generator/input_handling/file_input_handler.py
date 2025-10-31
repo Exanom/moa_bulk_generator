@@ -7,13 +7,14 @@ class FileInputHandler:
     """
     A class containing all the functionality related to loading datasets definitions from txt file.
     """
+
     _dataset_path: str
     _dataset_strings: list[str]
     _dataset_objects: list[DatasetObject]
 
     def __init__(self, dataset_path: str):
         """
-        FileInputHandler initialization. 
+        FileInputHandler initialization.
 
         Parameters:
             dataset_path (str): A path to a txt file containing the datasets definitions
@@ -25,16 +26,16 @@ class FileInputHandler:
     def load_validate_file(self) -> tuple[list[DatasetObject], list[str]]:
         datasets = []
         errors = []
-        if(self._dataset_path.endswith('.json')):
+        if self._dataset_path.endswith(".json"):
             with open(self._dataset_path) as f:
                 datasets = json.load(f)
-            for i,dataset in enumerate(datasets):
-                try:    
+            for i, dataset in enumerate(datasets):
+                try:
                     d_object = DatasetObject(dataset_dict=dataset)
                     self._dataset_objects.append(d_object)
                 except Exception as e:
                     errors.append(f"object {i+1}: {dataset} -> error: {e}")
-                
+
         else:
             with open(self._dataset_path) as f:
                 datasets = f.read().splitlines()
@@ -50,33 +51,34 @@ class FileInputHandler:
                     errors.append(f"line {i+1}: {dataset} -> error: {e}")
         return (self._dataset_objects, errors)
 
-    def load_validate_file_runtime(self) -> list[DatasetObject]:
-        """
-        Loads and parses the strings within the txt file. In case of any invalid entries, will require user input to decide course of action.
+    # UNUSED
+    # def load_validate_file_runtime(self) -> list[DatasetObject]:
+    #     """
+    #     Loads and parses the strings within the txt file. In case of any invalid entries, will require user input to decide course of action.
 
-        Returns:
-            list[DatasetObject]: A list of dataset definition objects based on the file contents. If there were no valid datasets defintions within the file, returns an empty list.
-        """
-        _, errors = self.load_validate_file()
-        print("")
+    #     Returns:
+    #         list[DatasetObject]: A list of dataset definition objects based on the file contents. If there were no valid datasets defintions within the file, returns an empty list.
+    #     """
+    #     _, errors = self.load_validate_file()
+    #     print("")
 
-        if len(self._dataset_objects) > 0:
-            print("Datasets to generate:")
-            for i, d in enumerate(self._dataset_objects):
-                print(f"\t{i}.{d.to_string()}")
-        if len(errors) > 0:
-            print("Script encoutered following errors in the dataset file:")
-            for error in errors:
-                print("\t" + error)
+    #     if len(self._dataset_objects) > 0:
+    #         print("Datasets to generate:")
+    #         for i, d in enumerate(self._dataset_objects):
+    #             print(f"\t{i}.{d.to_string()}")
+    #     if len(errors) > 0:
+    #         print("Script encoutered following errors in the dataset file:")
+    #         for error in errors:
+    #             print("\t" + error)
 
-        if len(self._dataset_objects) < 1:
-            print("No datasets to generate")
-        to_generate = "y"
-        if len(errors) > 0 and len(self._dataset_objects) > 0:
-            to_generate = handle_input(
-                f"Load the remaining({len(self._dataset_objects)}) datasets?(Y/N)"
-            )
-        if to_generate == "n":
-            self._dataset_objects = []
+    #     if len(self._dataset_objects) < 1:
+    #         print("No datasets to generate")
+    #     to_generate = "y"
+    #     if len(errors) > 0 and len(self._dataset_objects) > 0:
+    #         to_generate = handle_input(
+    #             f"Load the remaining({len(self._dataset_objects)}) datasets?(Y/N)"
+    #         )
+    #     if to_generate == "n":
+    #         self._dataset_objects = []
 
-        return self._dataset_objects
+    #     return self._dataset_objects

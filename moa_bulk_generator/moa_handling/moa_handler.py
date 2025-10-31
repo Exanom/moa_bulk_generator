@@ -142,6 +142,7 @@ class MOAHandler:
 
         for i, sample in enumerate(dataset.iloc[:, -1], start=1):
             prob = sigmoid(i, p, w)
+            next_prob = 0
 
             # handle early exit if the next drift is likely to take effect
             if p_next:
@@ -150,6 +151,7 @@ class MOAHandler:
                 # If our current drift already occured, and its probability is within the margin of the probability of the next drift, break
                 if prob > 0.99 and prob - next_prob < 0.01:
                     break
+            # Make an array assignment after a certain threshold
             if random.random() < prob - next_prob:
                 dataset.iloc[i - 1, -1] = mapping.get(sample)
 
