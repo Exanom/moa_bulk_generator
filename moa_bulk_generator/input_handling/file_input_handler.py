@@ -45,8 +45,12 @@ class FileInputHandler:
             errors = []
             for i, dataset in enumerate(self._dataset_strings):
                 try:
-                    d_object = DatasetObject(dataste_string=dataset)
-                    self._dataset_objects.append(d_object)
+                    if "_a_" in dataset:
+                        d_object = DatasetObject.create_many_objects(dataste_string=dataset)
+                        self._dataset_objects += d_object
+                    else:
+                        d_object = DatasetObject(dataste_string=dataset)
+                        self._dataset_objects.append(d_object)
                 except Exception as e:
                     errors.append(f"line {i+1}: {dataset} -> error: {e}")
         return (self._dataset_objects, errors)
