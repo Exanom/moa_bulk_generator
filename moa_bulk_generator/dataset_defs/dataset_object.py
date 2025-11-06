@@ -113,13 +113,15 @@ class DatasetObject:
         drift_widths: list[int] | None = None,
         num_of_samples: int | None = None,
         dataste_string: str | None = None,
+        dataset_dict: DatasetDict | None = None,
         amount: int | None = None,
     ):
         """
-        DatasetObject initialization. Provides two possible ways for creating the object:
+        DatasetObject initialization. Provides three possible ways for creating the object:
             1.Through passed base values
             2.Through properly formatted string
-        The priority of generation is as follows: string >  base values
+            3.Through a dictionary fullfiling the structure of DatasetDict class
+        The priority of generation is as follows: string > dictionary >  base values
         Parameters:
             generator (str): Shorthand name of MOA Datastream. Available generators are listed in GENERATORS static member
             classification_functions (list[int]): A list of all classification functions to be used in generation. If no concept drift should occur, there should be only one value in this list, In case when two consecutive classification functions are equall, the label defintions will switch with each other.
@@ -156,8 +158,10 @@ class DatasetObject:
             match = re.search(r"_a_(\d+)", dataste_string)
             if not match:
                 raise ValueError(f"Invalid string format: missing '_a_' pattern")
-
             datasets_amount = int(match.group(1))
+
+        if dataset_dict is not None:
+            datasets_amount = dataset_dict["amount"]
 
         if not (isinstance(datasets_amount, int) and 2 <= datasets_amount <= 50):
             raise ValueError(
@@ -168,6 +172,12 @@ class DatasetObject:
 
         dataset_list = []
         for i in range(datasets_amount):
+            dataset_dict_tmp = None
+            if dataset_dict is not None:
+                dataset_dict_tmp = dataset_dict.copy()
+                dataset_dict_tmp.pop("amount", None)
+                dataset_dict_tmp["seed_value"] = seed_many_values[i]
+
             ob = cls(
                 generator=generator,
                 classification_functions=classification_functions,
@@ -175,6 +185,7 @@ class DatasetObject:
                 drift_widths=drift_widths,
                 num_of_samples=num_of_samples,
                 dataste_string=dataste_string,
+                dataset_dict=dataset_dict_tmp,
                 seed_value=seed_many_values[i],
             )
             dataset_list.append(ob)

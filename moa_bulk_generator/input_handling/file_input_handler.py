@@ -31,8 +31,15 @@ class FileInputHandler:
                 datasets = json.load(f)
             for i, dataset in enumerate(datasets):
                 try:
-                    d_object = DatasetObject(dataset_dict=dataset)
-                    self._dataset_objects.append(d_object)
+                    if "amount" not in dataset:
+                        d_object = DatasetObject(dataset_dict=dataset)
+                        self._dataset_objects.append(d_object)
+                    else:
+                        d_objects = DatasetObject.create_many_objects(
+                            dataset_dict=dataset
+                        )
+                        self._dataset_objects += d_objects
+
                 except Exception as e:
                     errors.append(f"object {i+1}: {dataset} -> error: {e}")
 
@@ -46,7 +53,9 @@ class FileInputHandler:
             for i, dataset in enumerate(self._dataset_strings):
                 try:
                     if "_a_" in dataset:
-                        d_object = DatasetObject.create_many_objects(dataste_string=dataset)
+                        d_object = DatasetObject.create_many_objects(
+                            dataste_string=dataset
+                        )
                         self._dataset_objects += d_object
                     else:
                         d_object = DatasetObject(dataste_string=dataset)
