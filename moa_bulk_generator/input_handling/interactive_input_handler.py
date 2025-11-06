@@ -35,8 +35,11 @@ class InteractiveInputHandler:
         self._commands = {
             "a": {"name": "Add datset", "action": self._add_dataset},
             "r": {"name": "Remove dataset", "action": self._remove_dataset},
-            "ma": {"name": "Mass add datsets", "action": self._mass_add_datasets},
-            "mr": {"name": "Mass remove datasets", "action": self._mass_remove_datasets},
+            "ma": {"name": "Mass add datasets", "action": self._mass_add_datasets},
+            "mr": {
+                "name": "Mass remove datasets",
+                "action": self._mass_remove_datasets,
+            },
             "i": {"name": "Inspect dataset", "action": self._inspect_dataset},
             "w": {"name": "Write to file", "action": self._write_to_file},
             "c": {"name": "Clear list", "action": self._clear_list},
@@ -80,7 +83,6 @@ class InteractiveInputHandler:
         for key, command in self._commands.items():
             print(f"\t{key} - {command['name']}")
 
-   
     def _add_dataset(self, amount_added=False):
         self._print_headline()
         print("Generators:")
@@ -144,7 +146,9 @@ class InteractiveInputHandler:
                 )
             seed_values.append(seed_value)
         else:
-            amount = handle_input_int("Specify amount of the datasets to generate: ", min_val=2, max_val=50)
+            amount = handle_input_int(
+                "Specify amount of the datasets to generate: ", min_val=2, max_val=50
+            )
             seed_values = random.sample(range(0, 9999), amount)
 
         try:
@@ -159,8 +163,8 @@ class InteractiveInputHandler:
                     num_of_samples=num_of_samples,
                     seed_value=seed_value,
                 )
-                clear_console()
-                self._inspect_dataset(dataset)
+                # clear_console()
+                # self._inspect_dataset(dataset)
                 if to_add == "y":
                     self._datasets.append(dataset)
                 clear_console()
@@ -173,7 +177,7 @@ class InteractiveInputHandler:
     def _mass_add_datasets(self):
         self._add_dataset(amount_added=True)
 
-    def _remove_dataset(self,amount_added=False):
+    def _remove_dataset(self, amount_added=False):
         if len(self._datasets) < 1:
             return
         self._print_headline()
@@ -192,7 +196,9 @@ class InteractiveInputHandler:
             )
             clear_console()
             result = [i - 1 for i in to_delete]
-            self._datasets = [x for i, x in enumerate(self._datasets) if i not in result]
+            self._datasets = [
+                x for i, x in enumerate(self._datasets) if i not in result
+            ]
 
     def _mass_remove_datasets(self):
         self._remove_dataset(amount_added=True)

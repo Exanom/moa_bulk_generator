@@ -36,7 +36,6 @@ class DatasetObject:
     drift_widths: list[int]
     num_of_samples: int
     seed_value: int
-    amount: int
     GENERATORS: dict[str, GeneratorInfoDict] = {
         "Agrawal": {"fullName": "AgrawalGenerator", "functions": list(range(1, 12))},
         "STAGGER": {"fullName": "STAGGERGenerator", "functions": list(range(1, 4))},
@@ -120,14 +119,13 @@ class DatasetObject:
         DatasetObject initialization. Provides two possible ways for creating the object:
             1.Through passed base values
             2.Through properly formatted string
-        The priority of generation is as follows: string > dictionary > base values
+        The priority of generation is as follows: string >  base values
         Parameters:
             generator (str): Shorthand name of MOA Datastream. Available generators are listed in GENERATORS static member
             classification_functions (list[int]): A list of all classification functions to be used in generation. If no concept drift should occur, there should be only one value in this list, In case when two consecutive classification functions are equall, the label defintions will switch with each other.
             drift_points (list[int]): A list of points where the concept drift is to occur. Those points specify at which sample a given concept drift will be centered on
             drift_width (list[int]): A list of widths for each concept drift occurences. The width defines over how many samples the drift will occur and allows to choose whether drift should be sudden or gradual
             num_of_samples (int): Number of samples to be generated
-            dataset_dict (DatasetDict): A dictionary with structure that fullfills the requirements specified by class DatasetDict
             dataset_string (str): A string encoding parameters for the dataset
             amount (int): Amount of datasets to generate with random different seeds. Seed_value and amount cannot be used together.
         ------
@@ -152,30 +150,34 @@ class DatasetObject:
             10. Amount must be an integer from 2 to 50
         ------
         """
-        cls.generator = generator
-        cls.classification_functions = classification_functions
-        cls.drift_points = drift_points
-        cls.drift_widths = drift_widths
-        cls.num_of_samples = num_of_samples
-        cls.amount = amount
 
+        datasets_amount = amount
         if dataste_string is not None:
             match = re.search(r"_a_(\d+)", dataste_string)
             if not match:
                 raise ValueError(f"Invalid string format: missing '_a_' pattern")
 
-            value = int(match.group(1))
-            if not (2 <= value <= 50):
-                raise ValueError(f"Invalid amount: {value} (must be between 2 and 50)")
+            datasets_amount = int(match.group(1))
 
-            cls.amount = value
+        if not (isinstance(datasets_amount, int) and 2 <= datasets_amount <= 50):
+            raise ValueError(
+                f"Invalid amount: {datasets_amount} (must be between 2 and 50)"
+            )
 
-        seed_many_values = random.sample(range(0, 9999), cls.amount)
+        seed_many_values = random.sample(range(0, 9999), datasets_amount)
 
         dataset_list = []
-        for i in range(cls.amount):
-           ob = cls(dataste_string=dataste_string, seed_value=seed_many_values[i])
-           dataset_list.append(ob)
+        for i in range(datasets_amount):
+            ob = cls(
+                generator=generator,
+                classification_functions=classification_functions,
+                drift_points=drift_points,
+                drift_widths=drift_widths,
+                num_of_samples=num_of_samples,
+                dataste_string=dataste_string,
+                seed_value=seed_many_values[i],
+            )
+            dataset_list.append(ob)
         return dataset_list
 
     def check_switching_drift(self) -> bool:
@@ -190,14 +192,13 @@ class DatasetObject:
                 return True
         return False
 
-
     def _from_string(self, generator_string: str):
         pattern = re.compile(
             r"^(?P<name>[^_]+)"  # generator name (no underscores)
             r"_f_(?P<f_vals>\d+(?:_\d+)*)"  # f values (one or more ints separated by _)
             r"(?:_p_(?P<p_vals>\d+(?:_\d+)*)_w_(?P<w_vals>\d+(?:_\d+)*))?"  # optional p and w blocks
             r"_s_(?P<s>\d+)"  # final s integer
-            r"(_r_(?P<r>\d{1,4})|_a_(?P<a>\d{1,2}))?" #optional r or a
+            r"(_r_(?P<r>\d{1,4})|_a_(?P<a>\d{1,2}))?"  # optional r or a
             r"$"
         )
 
@@ -217,9 +218,6 @@ class DatasetObject:
         val = int(r) if (r := m.group("r")) else None
         if self.seed_value is None:
             self.seed_value = val
-        val = int(a) if (a := m.group("a")) else None
-        if self.amount is None:
-            self.amount = val
 
     def _from_dict(self, generation_dict: DatasetDict):
         check_type(generation_dict, DatasetDict)
