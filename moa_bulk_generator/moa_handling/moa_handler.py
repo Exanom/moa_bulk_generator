@@ -69,15 +69,17 @@ class MOAHandler:
             + self._MOA_path
             + "/lib/sizeofag-1.1.0.jar moa.DoTask"
         )
+        # -i {str(dataset_object.seed_value)}
         generation_command = "WriteStreamToARFFFile "
         if len(dataset_object.classification_functions) == 1:
-            generation_command += f"-s (generators.{dataset_object.get_generator_name()}) -f {str(dataset_object.classification_functions[0])})"
+            generation_command += f"-s (generators.{dataset_object.get_generator_name()} -i {str(dataset_object.seed_value)}) -f {str(dataset_object.classification_functions[0])})"
         else:
             generation_command += self._build_command(
                 dataset_object.get_generator_name(),
                 dataset_object.classification_functions,
                 dataset_object.drift_points,
                 dataset_object.drift_widths,
+                dataset_object.seed_value,
             )
 
         generation_command += f" -f {out_dir}/{dataset_object.to_string()}.arff -m {str(dataset_object.num_of_samples)}"
@@ -140,6 +142,7 @@ class MOAHandler:
 
         for i, sample in enumerate(dataset.iloc[:, -1], start=1):
             prob = sigmoid(i, p, w)
+            next_prob = 0
 
             # handle early exit if the next drift is likely to take effect
             if p_next:
@@ -148,6 +151,7 @@ class MOAHandler:
                 # If our current drift already occured, and its probability is within the margin of the probability of the next drift, break
                 if prob > 0.99 and prob - next_prob < 0.01:
                     break
+            # Make an array assignment after a certain threshold
             if random.random() < prob - next_prob:
                 dataset.iloc[i - 1, -1] = mapping.get(sample)
 
@@ -199,10 +203,11 @@ class MOAHandler:
         classification_functions: list[int],
         drift_points: list[int],
         drift_widths: list[int],
+        seed_value: int,
     ) -> str:
         res = "-s (ConceptDriftStream "
         if len(drift_points) < 2:
-            res += f"-s (generators.{generator} -f {str(classification_functions[0])}) -d (generators.{generator} -f {str(classification_functions[1])})"
+            res += f"-s (generators.{generator} -i {str(seed_value)} -f {str(classification_functions[0])}) -d (generators.{generator} -f {str(classification_functions[1])})"
         else:
             res += (
                 self._build_command(
@@ -210,6 +215,7 @@ class MOAHandler:
                     classification_functions[:-1],
                     drift_points[:-1],
                     drift_widths[:-1],
+                    seed_value,
                 )
                 + f" -d (generators.{generator} -f {str(classification_functions[-1])})"
             )

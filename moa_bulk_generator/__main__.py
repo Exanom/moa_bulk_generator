@@ -1,6 +1,6 @@
 import argparse
 import sys
-from . import MOABulkGenerator
+from .generator import MOABulkGenerator
 from .dataset_defs import DatasetObject
 
 
@@ -30,41 +30,46 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--out", type=str, help="Specify output directory other than default."
     )
     p.add_argument(
-        '--list',
-        '-l',
+        "--list",
+        "-l",
         action="store_true",
-        help='List information on supported generators'
+        help="List information on supported generators",
     )
     return p
 
 
 def main():
     parser = build_arg_parser()
-    args = parser.parse_args()  
-    if not args.interactive and not args.datasets and not args.list and not args.validate:
+    args = parser.parse_args()
+    if (
+        not args.interactive
+        and not args.datasets
+        and not args.list
+        and not args.validate
+    ):
         parser.print_help(sys.stderr)
         sys.exit(0)
-    elif(args.list):
+    elif args.list:
         generatos = DatasetObject.GENERATORS
-        print('Supported Generators:')
+        print("Supported Generators:")
         for gen in generatos:
-            print(f'name: {gen}')
+            print(f"name: {gen}")
             for key in generatos[gen]:
-                print(f'\t {key}:{generatos[gen][key]}')
-    elif(args.validate):
+                print(f"\t {key}:{generatos[gen][key]}")
+    elif args.validate:
         datasets, errors = MOABulkGenerator.validate_datasets(args.validate)
-        print('Valid datasets:')
+        print("Valid datasets:")
         for dataset in datasets:
-            print(f'\t {dataset.to_string()}')
-        print('Errors:')
+            print(f"\t {dataset.to_string()}")
+        print("Errors:")
         for error in errors:
-            print(f'\t {error}')
+            print(f"\t {error}")
     else:
         moa = MOABulkGenerator(
             out=args.out,
             config=args.config,
         )
-        if(args.datasets):
+        if args.datasets:
             moa.load_from_file(args.datasets)
         moa.run(args.interactive)
 

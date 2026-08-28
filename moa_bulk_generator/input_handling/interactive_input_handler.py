@@ -1,9 +1,9 @@
 from ..dataset_defs import DatasetObject
-from .utils import handle_input, clear_console, handle_input_int
+from .utils import handle_input, clear_console, handle_input_int, handle_input_indexes
 from .types import CommandDict
 from typing import Dict
+import random
 import uuid
-
 
 
 class InteractiveInputHandler:
@@ -12,18 +12,21 @@ class InteractiveInputHandler:
         1. List datasets to generate
         2. Manually add datasets to generate
         3. Manually remove chosen datasets from generation
-        4. Display information for a chosen dataset
-        5. Write list of current datasets to a txt file
-        6. Remove all datasets from the list
-        7. Generate listed datasets
+        4. Manually add multiple datasets with different seeds to generate
+        5. Manually remove multiple datasets from generation
+        6. Display information for a chosen dataset
+        7. Write list of current datasets to a txt file
+        8. Remove all datasets from the list
+        9. Generate listed datasets
     """
+
     _datasets: list[DatasetObject]
     _commands: Dict[int, CommandDict]
     _running: bool
 
     def __init__(self, datasets: list[DatasetObject]):
         """
-        InteractiveInputHandler initialization. 
+        InteractiveInputHandler initialization.
 
         Parameters:
             datasets (list[DatasetObject]): A list of datasets to be initalized for the CLI. Can be empty
@@ -32,6 +35,11 @@ class InteractiveInputHandler:
         self._commands = {
             "a": {"name": "Add datset", "action": self._add_dataset},
             "r": {"name": "Remove dataset", "action": self._remove_dataset},
+            "ma": {"name": "Mass add datasets", "action": self._mass_add_datasets},
+            "mr": {
+                "name": "Mass remove datasets",
+                "action": self._mass_remove_datasets,
+            },
             "i": {"name": "Inspect dataset", "action": self._inspect_dataset},
             "w": {"name": "Write to file", "action": self._write_to_file},
             "c": {"name": "Clear list", "action": self._clear_list},
@@ -61,7 +69,9 @@ class InteractiveInputHandler:
 
     def _print_headline(self):
         print("INTERACTIVE MOA BULK GENERATOR")
-        print('All command executions will be logged in log.txt file in the library directory')
+        print(
+            "All command executions will be logged in log.txt file in the library directory"
+        )
         print("==========================")
         print("Datasets to generate:")
         for i, d in enumerate(self._datasets):
@@ -73,7 +83,7 @@ class InteractiveInputHandler:
         for key, command in self._commands.items():
             print(f"\t{key} - {command['name']}")
 
-    def _add_dataset(self):
+    def _add_dataset(self, amount_added=False):
         self._print_headline()
         print("Generators:")
         generators = {}
@@ -126,37 +136,72 @@ class InteractiveInputHandler:
             "Specify the number of samples to generate: ", min_val=max_drift_point
         )
 
-        try:
-            dataset = DatasetObject(
-                generator=gen,
-                classification_functions=functions,
-                drift_points=drift_points,
-                drift_widths=drift_widths,
-                num_of_samples=num_of_samples,
+        seed_values = []
+        if not amount_added:
+            seed_answer = handle_input("Specify the seed value if you want?(Y/N)")
+            seed_value = None
+            if seed_answer == "y":
+                seed_value = handle_input_int(
+                    "Specify the seed value for generator: ", min_val=0, max_val=9999
+                )
+            seed_values.append(seed_value)
+        else:
+            amount = handle_input_int(
+                "Specify amount of the datasets to generate: ", min_val=2, max_val=50
             )
-            clear_console()
-            self._inspect_dataset(dataset)
-            to_add = handle_input("Add this dataset to the list?(Y/N)")
-            if to_add == "y":
-                self._datasets.append(dataset)
-            clear_console()
+            seed_values = random.sample(range(0, 9999), amount)
+
+        try:
+            val = "dataset" if len(seed_values) == 1 else "datasets"
+            to_add = handle_input(f"Add this {val} to the list?(Y/N)")
+            for seed_value in seed_values:
+                dataset = DatasetObject(
+                    generator=gen,
+                    classification_functions=functions,
+                    drift_points=drift_points,
+                    drift_widths=drift_widths,
+                    num_of_samples=num_of_samples,
+                    seed_value=seed_value,
+                )
+                # clear_console()
+                # self._inspect_dataset(dataset)
+                if to_add == "y":
+                    self._datasets.append(dataset)
+                clear_console()
 
         except Exception as e:
             print(f"Dataset is invalid: {e}")
             handle_input("Press enter to continue...", None)
             clear_console()
 
-    def _remove_dataset(self):
+    def _mass_add_datasets(self):
+        self._add_dataset(amount_added=True)
+
+    def _remove_dataset(self, amount_added=False):
         if len(self._datasets) < 1:
             return
         self._print_headline()
 
         indices = [str(x) for x in range(1, len(self._datasets) + 1)]
-        to_delete = handle_input(
-            "Specify index of the dataset to delete:", indices, indices[0]
-        )
-        clear_console()
-        self._datasets.pop(int(to_delete) - 1)
+
+        if not amount_added:
+            to_delete = handle_input(
+                "Specify index of the dataset to delete:", indices, indices[0]
+            )
+            clear_console()
+            self._datasets.pop(int(to_delete) - 1)
+        else:
+            to_delete = handle_input_indexes(
+                "Specify indexes of the datasets to delete (e.g. 1,3,6 or 2-10,14):"
+            )
+            clear_console()
+            result = [i - 1 for i in to_delete]
+            self._datasets = [
+                x for i, x in enumerate(self._datasets) if i not in result
+            ]
+
+    def _mass_remove_datasets(self):
+        self._remove_dataset(amount_added=True)
 
     def _inspect_dataset(self, dataset_in: DatasetObject | None = None):
         if dataset_in is not None:
@@ -173,10 +218,10 @@ class InteractiveInputHandler:
             dataset = self._datasets[int(to_show) - 1]
 
         print(f"Name: {dataset.to_string()}")
-        print(f'Generaot: {dataset.get_generator_name()}')
+        print(f"Generator: {dataset.get_generator_name()}")
         if len(dataset.classification_functions) > 1:
             for i in range(len(dataset.drift_points)):
-                print(f"Concept Drfit {i}:")
+                print(f"Concept Drift {i}:")
                 print(
                     f"\t Classification functions: {dataset.classification_functions[i]}->{dataset.classification_functions[i+1]}"
                 )
@@ -185,6 +230,7 @@ class InteractiveInputHandler:
         else:
             print(f"Classification function: {dataset.classification_functions[0]}")
         print(f"Number of samples: {dataset.num_of_samples}")
+        print(f"Seed value: {dataset.seed_value}")
 
         if dataset_in is None:
             handle_input("Press enter to continue...", None)
@@ -204,7 +250,7 @@ class InteractiveInputHandler:
                 f"An error has occured during file write. Write datasets to {filename}?(Y/N)"
             )
             if save == "y":
-                with open(filename, "w") as f:  
+                with open(filename, "w") as f:
                     for dataset in self._datasets:
                         f.write(dataset.to_string() + "\n")
             self._datasets = []

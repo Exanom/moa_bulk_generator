@@ -7,6 +7,8 @@ class DatasetDict(TypedDict):
     drift_points: NotRequired[list[int]]
     drift_widths: NotRequired[list[int]]
     num_of_samples: int
+    seed_value: NotRequired[int]
+    amount: NotRequired[int]
 
 
 class GeneratorInfoDict(TypedDict):

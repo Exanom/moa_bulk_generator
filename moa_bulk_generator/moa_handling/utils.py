@@ -6,37 +6,39 @@ from shlex import split
 
 log_path = Path(__file__).resolve().parent.parent
 logging.basicConfig(
-    filename=str(log_path) +'/log.txt',
+    filename=str(log_path) + "/log.txt",
     level=logging.INFO,
-    format="[%(asctime)s] [%(levelname)s] %(message)s"
+    format="[%(asctime)s] [%(levelname)s] %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
-def execute_command( command: str):
+def execute_command(command: str):
     """
     Executes a given command using subprocess library. In case of error in the result of the command will raise an exception. Every command ran is logged into log.txt file.
 
     Parameters:
         command (str): String containing the command to be run
     """
-    logger.info(f'Running command {command}')
-    #TODO actually implement sensible error handling with custom exceptions
+    logger.info(f"Running command {command}")
+
     try:
         result = subprocess.run(split(command), capture_output=True)
-        if("error" in str(result.stdout).lower() or "{M}assive {O}nline {A}nalysis" not in str(result.stderr)):
+        if "error" in str(
+            result.stdout
+        ).lower() or "{M}assive {O}nline {A}nalysis" not in str(result.stderr):
             raise Exception()
     except Exception as e:
-        if(str(e) == ''):
-            logger.error(f'std_out: {str(result.stdout)} std_err: {str(result.stderr)}')
+        if str(e) == "":
+            logger.error(f"std_out: {str(result.stdout)} std_err: {str(result.stderr)}")
         else:
-            logger.error(f'command execution failed with {e}')
+            logger.error(f"command execution failed with {e}")
         raise Exception()
-    
+
 
 def sigmoid(i, p, w):
     x = -4.0 * (i - p) / w
-    
-    if(x>=700):
+
+    if x >= 700:
         return 0
     return 1.0 / (1.0 + math.exp(x))

@@ -6,8 +6,9 @@ from .dataset_defs import DatasetObject, DatasetDict
 from typeguard import check_type
 
 
-#store datasets in a member, allow adding and deleting datasets. create dynamicInputHandler that takes in the lists of dicts, strings and returns datasetobjects.
-#add distinct method for loading from file, run should only generate the loaded datasets(and dynamic)
+# store datasets in a member, allow adding and deleting datasets. create dynamicInputHandler that takes in the lists of dicts, strings and returns datasetobjects.
+# add distinct method for loading from file, run should only generate the loaded datasets(and dynamic)
+
 
 class MOABulkGenerator:
     """
@@ -27,13 +28,14 @@ class MOABulkGenerator:
         2.There is at least one classification function specified
         3. All specified classification functions are supported
         4. All specified drift point and drift width values are integers
-        5. There is exactly one more classification functions specified, than the number of drift point and width values 
+        5. There is exactly one more classification functions specified, than the number of drift point and width values
         6. The specified drift point values must be strictly rising
         7. No drift area(centered on a given drift point, and expanding to width/2 around it in both directions) overlaps with any other drift area
         8. No drift area overlaps with begining or end point of geneation
         9. The specified number of samples is bigger than zero
     ------
     """
+
     _moa_handler: MOAHandler = None
     _interactive: bool
     _dataset_file_path: str
@@ -42,18 +44,18 @@ class MOABulkGenerator:
 
     def __init__(
         self,
-        config: str ="config.json",
+        config: str = "config.json",
         out: str = "results",
     ):
         """
-        MOABulkGenerator initialization. 
+        MOABulkGenerator initialization.
 
         Parameters:
             interactive (bool): Enables/Disables the interactive CLI mode.
             config_path (str): Path to a json file containing the path to execute a java program on user machine and the path to the main MOA directory. If no such file exists, one will be generated on first call.
             dataset_file (str): Path to a txt file containing defintions of the datasets to be generated in the form of strings. The format of the strings is specified below
             out_path (str): Directory where the generated datasets and log file will be saved
-        
+
         ------
         Format for string dataset definitons:\n
             {generator}_f_{functions separated by _}_p_{points seprated by _}_w_{widths separated by _}_s_{number of samples}
@@ -73,8 +75,8 @@ class MOABulkGenerator:
 
         java_executable, moa_path = self._load_config(config)
         self._moa_handler = MOAHandler(java_executable, moa_path)
-    
-    def load_from_file(self, dataset_path:str):
+
+    def load_from_file(self, dataset_path: str):
         """
         Loads dataset definitions from a file and appends them to the object dataset list.
 
@@ -83,33 +85,36 @@ class MOABulkGenerator:
         """
         file_handler = FileInputHandler(dataset_path)
         datasets, errors = file_handler.load_validate_file()
+        for error in errors:
+            print(f"\t {error}")
         self.datasets.extend(datasets)
-    
+
     def add_datasets(self, dataset_definitions: list[str] | list[DatasetDict]):
         dataset_tmp = []
         for dataset in dataset_definitions:
-            if(isinstance(dataset,str)):
+            if isinstance(dataset, str):
                 d_object = DatasetObject(dataste_string=dataset)
                 dataset_tmp.append(d_object)
-            elif(check_type(dataset, DatasetDict)):
+            elif check_type(dataset, DatasetDict):
                 d_object = DatasetObject(dataset_dict=dataset)
                 dataset_tmp.append(d_object)
             else:
-                raise Exception('Dataset definitions must be either string or Dataset Dictionary')
+                raise Exception(
+                    "Dataset definitions must be either string or Dataset Dictionary"
+                )
         self.datasets.extend(dataset_tmp)
 
-
-        
-        
-    def run(self, interactive:bool = False):
+    def run(self, interactive: bool = False):
         """
-        Handles the main functionalities of the script, including loading definitions of datasets, invoking the CLI and generating the datasets. 
+        Handles the main functionalities of the script, including loading definitions of datasets, invoking the CLI and generating the datasets.
 
         Parameters:
             interactive (bool):  Enables interactive CLI mode
         """
-        print('MOA BULK GENERATOR')
-        print('All command executions will be logged in log.txt file in the library directory')
+        print("MOA BULK GENERATOR")
+        print(
+            "All command executions will be logged in log.txt file in the library directory"
+        )
 
         if interactive:
             input_handler = InteractiveInputHandler(self.datasets)
@@ -143,13 +148,13 @@ class MOABulkGenerator:
 
         return (java_path, moa_path)
 
-    def validate_datasets(dataset_path:str) -> tuple[list[DatasetObject],list[str]]:
+    def validate_datasets(dataset_path: str) -> tuple[list[DatasetObject], list[str]]:
         """
         Validates dataset definitions.
 
         Parameters:
             dataset_path (str): Path to the json or txt file containing dataset definitions
-        
+
         Returns:
             (typle[list[DatasetObject],list[str]]): Tuple where the first element is a list of valid datasets, and the second element is a list of error messages
         """
