@@ -151,6 +151,10 @@ class MOAHandler:
                 # If our current drift already occured, and its probability is within the margin of the probability of the next drift, break
                 if prob > 0.99 and prob - next_prob < 0.01:
                     break
+            # early stop and reassignment for last drift
+            if prob > 0.99:
+                dataset.iloc[i - 1 :, -1] = dataset.iloc[i - 1 :, -1].map(mapping)
+                break
             # Make an array assignment after a certain threshold
             if random.random() < prob - next_prob:
                 dataset.iloc[i - 1, -1] = mapping.get(sample)

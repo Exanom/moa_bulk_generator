@@ -147,7 +147,7 @@ class InteractiveInputHandler:
             seed_values.append(seed_value)
         else:
             amount = handle_input_int(
-                "Specify amount of the datasets to generate: ", min_val=2, max_val=50
+                "Specify amount of the datasets to generate: ", min_val=2, max_val=1000
             )
             seed_values = random.sample(range(0, 9999), amount)
 

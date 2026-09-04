@@ -149,7 +149,7 @@ class DatasetObject:
             7. No drift area(centered on a given drift point, and expanding to width/2 around it in both directions) overlaps with any other drift area
             8. No drift area overlaps with begining or end point of geneation
             9. The specified number of samples is bigger than zero
-            10. Amount must be an integer from 2 to 50
+            10. Amount must be an integer from 2 to 1000
         ------
         """
 
@@ -163,9 +163,9 @@ class DatasetObject:
         if dataset_dict is not None:
             datasets_amount = dataset_dict["amount"]
 
-        if not (isinstance(datasets_amount, int) and 2 <= datasets_amount <= 50):
+        if not (isinstance(datasets_amount, int) and 2 <= datasets_amount <= 1000):
             raise ValueError(
-                f"Invalid amount: {datasets_amount} (must be between 2 and 50)"
+                f"Invalid amount: {datasets_amount} (must be between 2 and 1000)"
             )
 
         seed_many_values = random.sample(range(0, 9999), datasets_amount)
@@ -209,7 +209,7 @@ class DatasetObject:
             r"_f_(?P<f_vals>\d+(?:_\d+)*)"  # f values (one or more ints separated by _)
             r"(?:_p_(?P<p_vals>\d+(?:_\d+)*)_w_(?P<w_vals>\d+(?:_\d+)*))?"  # optional p and w blocks
             r"_s_(?P<s>\d+)"  # final s integer
-            r"(_r_(?P<r>\d{1,4})|_a_(?P<a>\d{1,2}))?"  # optional r or a
+            r"(_r_(?P<r>\d{1,4})|_a_(?P<a>\d{1,4}))?"  # optional r or a
             r"$"
         )
 

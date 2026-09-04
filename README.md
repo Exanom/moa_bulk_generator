@@ -188,6 +188,13 @@ Each dataset is described by a set of named fields. Supported fields:
    Width (number of samples) over which each consecutive concept drift occurs (equivalent to the `-w` parameter for `ConceptDriftStream`). Must contain exactly `len(classification_functions) - 1` entries.
 - `num_of_samples` (int)  
    Total number of samples to generate for this dataset.
+- `seed_value` (int)  
+  The seed used for random generation.
+- `amount` (int)  
+  The number of datasets to be generated with random seeds.
+
+  > Note: `seed_value` and `amount` are mutually exclusive and cannot be used together in a dataset definition. You may also omit both in order to generate a single dataset with a random seed.
+
   > Note: To check currently supported generators and the valid values for their classification functions, following code can be used:
   >
   > ```python
@@ -218,7 +225,16 @@ It is possible to load datasets from json file:
     "classification_functions": [1, 2],
     "num_of_samples": 1000,
     "drift_points": [100],
-    "drift_widths": [1]
+    "drift_widths": [1],
+    "seed_value": 42
+  }
+  {
+    "generator": "SEA",
+    "classification_functions": [1, 2],
+    "num_of_samples": 1000,
+    "drift_points": [100],
+    "drift_widths": [1],
+    "amount": 10
   }
 ]
 ```
@@ -234,6 +250,8 @@ Supported keys:
 - `drift_points` -> `p`
 - `drift_widths` -> `w`
 - `num_of_samples` -> `s`
+- `seed_value` -> `r`
+- `amount` -> `a`  
   Values after a given keyword and before the next keyword represent the target values for a given parameter.
 
 #### Example dataset definition:
